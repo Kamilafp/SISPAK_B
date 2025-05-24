@@ -16,7 +16,7 @@ require_once(__DIR__ . '/../config/database.php');
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="/sispak/index.php">Sistem Pakar Penyakit Gigi</a>
+            <a class="navbar-brand" href="/SISPAK_B/index.php">Sistem Pakar Penyakit Gigi</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -25,27 +25,27 @@ require_once(__DIR__ . '/../config/database.php');
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <?php if (isAdmin()): ?>
                         <li class="nav-item">
-                            <a class="nav-link" href="/sispak/admin/dashboard.php">Admin</a>
+                            <a class="nav-link" href="/SISPAK_B/admin/dashboard.php">Admin</a>
                         </li>
                     <?php endif; ?>
                     <li class="nav-item">
-                        <a class="nav-link" href="/sispak/dashboard.php">Dashboard</a>
+                        <a class="nav-link" href="/SISPAK_B/dashboard.php">Dashboard</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/sispak/konsultasi.php">Konsultasi</a>
+                        <a class="nav-link" href="/SISPAK_B/konsultasi.php">Konsultasi</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/sispak/logout.php">Logout</a>
+                        <a class="nav-link" href="/SISPAK_B/logout.php">Logout</a>
                     </li>
                 <?php else: ?>
                     <li class="nav-item">
-                        <a class="nav-link" href="/sispak/index.php">Home</a>
+                        <a class="nav-link" href="/SISPAK_B/index.php">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/sispak/login.php">Login</a>
+                        <a class="nav-link" href="/SISPAK_B/login.php">Login</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/sispak/register.php">Register</a>
+                        <a class="nav-link" href="/SISPAK_B/register.php">Register</a>
                     </li>
                 <?php endif; ?>
             </ul>
@@ -54,4 +54,3 @@ require_once(__DIR__ . '/../config/database.php');
         </div>
     </nav>
     
-    <div class="container">

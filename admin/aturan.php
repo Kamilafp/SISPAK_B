@@ -1,7 +1,6 @@
 <?php
-session_start();
 require_once(__DIR__ . '/../includes/functions.php');
-require_once(__DIR__ . '/../includes/header.php');
+require_once(__DIR__ . '/layout/header_layout.php');
 
 if (!isLoggedIn() || !isAdmin()) {
     header('Location: ../login.php');
@@ -125,5 +124,5 @@ $gejala_result = mysqli_query($conn, $gejala_query);
 </div>
 
 <?php 
-require_once(__DIR__ . '/../includes/footer.php'); 
+require_once(__DIR__ . '/layout/footer_layout.php');
 ?>
