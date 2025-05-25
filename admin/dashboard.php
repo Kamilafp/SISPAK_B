@@ -35,7 +35,7 @@ $recent_result = mysqli_query($conn, $recent_query);
 ?>
 
 <!-- Statistics Cards -->
-<div class="row mb-4">
+<!-- <div class="row mb-4">
     <div class="col-xl-3 col-md-6 mb-4">
         <div class="card stats-card bg-primary text-white">
             <div class="card-body position-relative">
@@ -64,7 +64,7 @@ $recent_result = mysqli_query($conn, $recent_query);
                 </a>
             </div>
         </div>
-    </div>
+    </div> -->
     
     <div class="col-xl-3 col-md-6 mb-4">
         <div class="card stats-card bg-info text-white">
@@ -81,7 +81,7 @@ $recent_result = mysqli_query($conn, $recent_query);
         </div>
     </div>
     
-    <div class="col-xl-3 col-md-6 mb-4">
+    <!-- <div class="col-xl-3 col-md-6 mb-4">
         <div class="card stats-card bg-warning text-dark">
             <div class="card-body position-relative">
                 <div class="stats-icon">
@@ -94,11 +94,11 @@ $recent_result = mysqli_query($conn, $recent_query);
                 </a>
             </div>
         </div>
-    </div>
+    </div> -->
 </div>
 
 <!-- Quick Actions -->
-<div class="row mb-4">
+<!-- <div class="row mb-4">
     <div class="col-12">
         <div class="card">
             <div class="card-header">
@@ -130,7 +130,7 @@ $recent_result = mysqli_query($conn, $recent_query);
             </div>
         </div>
     </div>
-</div>
+</div> -->
 
 <!-- Recent Activity -->
 <div class="row">
