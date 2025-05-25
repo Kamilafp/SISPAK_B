@@ -15,6 +15,27 @@ if (isset($_SESSION['flash_message'])) {
     unset($_SESSION['flash_message']);
 }
 
+// Fungsi untuk generate kode gejala berikutnya
+function getNextGejalaCode($conn) {
+    $query = "SELECT kode_gejala FROM gejala ORDER BY kode_gejala DESC LIMIT 1";
+    $result = mysqli_query($conn, $query);
+    
+    if (mysqli_num_rows($result) > 0) {
+        $last_code = mysqli_fetch_assoc($result)['kode_gejala'];
+        // Extract number from code (G01 → 1)
+        $last_num = (int) substr($last_code, 1);
+        $next_num = $last_num + 1;
+    } else {
+        // Jika tabel kosong, mulai dari 1
+        $next_num = 1;
+    }
+    
+    // Format dengan leading zero (1 → 01)
+    return 'G' . str_pad($next_num, 2, '0', STR_PAD_LEFT);
+}
+
+$next_code = getNextGejalaCode($conn);
+
 // Tambah gejala baru
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tambah'])) {
     $kode = mysqli_real_escape_string($conn, $_POST['kode']);
@@ -114,7 +135,9 @@ $result = mysqli_query($conn, $query);
                             <div class="row g-3">
                                 <div class="col-md-2">
                                     <label class="form-label">Kode Gejala</label>
-                                    <input type="text" name="kode" class="form-control" placeholder="G01" required>
+                                    <input type="text" name="kode" class="form-control" 
+                                        value="<?= htmlspecialchars($next_code) ?>" 
+                                        required>
                                 </div>
                                 <div class="col-md-10">
                                     <label class="form-label">Nama Gejala</label>

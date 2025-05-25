@@ -125,17 +125,12 @@ if (!isLoggedIn() || ($_SESSION['role'] ?? '') !== 'pakar') {
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'pengguna.php' ? 'active' : '' ?>" href="pengguna.php">
-                    <i class="fas fa-users"></i> Kelola Pengguna
-                </a>
-            </li>
-            <li class="nav-item">
                 <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'riwayat.php' ? 'active' : '' ?>" href="riwayat.php">
                     <i class="fas fa-history"></i> Riwayat Diagnosa
                 </a>
             </li>
             <li class="nav-item mt-3">
-                <a class="nav-link" href="../dashboard.php">
+                <a class="nav-link" href="../logout.php">
                     <i class="fas fa-external-link-alt"></i> Kembali ke Website
                 </a>
             </li>
