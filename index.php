@@ -191,7 +191,7 @@ require_once(__DIR__ . '/includes/header.php');
                     </div>
                     <h5 class="card-title">Informasi Penyakit</h5>
                     <p class="card-text">Pelajari berbagai jenis penyakit gigi, gejala, dan solusi penanganannya.</p>
-                    <a href="sispak/admin/penyakit" class="btn btn-outline-primary">Lihat Daftar</a>
+                    <a href="informasi_penyakit.php" class="btn btn-outline-primary">Lihat Daftar</a>
                 </div>
             </div>
         </div>
