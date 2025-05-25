@@ -3,8 +3,8 @@ ob_start(); // Mulai output buffering untuk menghindari header issues
 require_once(__DIR__ . '/../includes/functions.php');
 require_once(__DIR__ . '/layout/header_layout.php');
 
-if (!isLoggedIn() || !isAdmin()) {
-    header('Location: ../login.php');
+if (!isLoggedIn() || ($_SESSION['role'] ?? '') !== 'admin') {
+    header('Location: /../../login.php');
     exit();
 }
 

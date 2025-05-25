@@ -2,8 +2,8 @@
 $page_title = "Riwayat Diagnosis";
 require_once(__DIR__ . '/layout/header_layout.php');
 
-if (!isLoggedIn() || !isAdmin()) {
-    header('Location: ../login.php');
+if (!isLoggedIn() || ($_SESSION['role'] ?? '') !== 'admin') {
+    header('Location: /../../login.php');
     exit();
 }
 

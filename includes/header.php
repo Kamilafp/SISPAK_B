@@ -21,7 +21,7 @@ require_once(__DIR__ . '/../config/database.php');
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ml-auto">
                     <?php if (isset($_SESSION['user_id'])): ?>
-                        <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] == 1): ?>
+                        <?php if ($_SESSION['role']=='admin') : ?>
                             <li class="nav-item">
                                 <a class="nav-link" href="/SISPAK_B/admin/dashboard.php">Admin</a>
                             </li>
