@@ -18,7 +18,6 @@ $result = mysqli_query($conn, $query);
         --gradient-end: #2c3e50;
     }
     
-    /* Global Styles */
     * {
         margin: 0;
         padding: 0;
@@ -38,7 +37,6 @@ $result = mysqli_query($conn, $query);
         padding: 0 20px;
     }
     
-    /* Header Styles */
     header {
         background-color: var(--primary-color);
         color: white;
@@ -86,7 +84,6 @@ $result = mysqli_query($conn, $query);
         box-shadow: 0 7px 20px rgba(0, 0, 0, 0.15);
     }
     
-    /* Hero Section - Modified to match your CSS */
     .hero {
         background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
         color: white;
@@ -147,7 +144,6 @@ $result = mysqli_query($conn, $query);
         border-radius: 3px;
     }
     
-    /* Disease Info Section - Updated to match your card style */
     .disease-info {
         padding: 50px 0;
     }
@@ -227,7 +223,6 @@ $result = mysqli_query($conn, $query);
         margin-left: -1em;
     }
     
-    /* Prevention Tips - Updated */
     .prevention-tips {
         background-color: #e8f4f3;
         padding: 2rem;
@@ -246,8 +241,8 @@ $result = mysqli_query($conn, $query);
     
     .prevention-tips ol {
         padding-left: 20px;
-        list-style-type: none; /* Nonaktifkan numbering default */
-        counter-reset: item; /* Inisialisasi counter */
+        list-style-type: none; 
+        counter-reset: item; 
     }
 
     .prevention-tips ol li {
@@ -257,15 +252,14 @@ $result = mysqli_query($conn, $query);
     }
 
     .prevention-tips ol li::before {
-        content: counter(item) "."; /* Tampilkan counter */
-        counter-increment: item; /* Tingkatkan counter */
+        content: counter(item) "."; 
+        counter-increment: item; 
         color: var(--primary-color);
         font-weight: bold;
         position: absolute;
         left: -20px;
     }
     
-    /* CTA Section - Updated with your button style */
     .cta-section {
         text-align: center;
         margin: 40px 0;
@@ -303,7 +297,7 @@ $result = mysqli_query($conn, $query);
         box-shadow: 0 7px 20px rgba(0, 0, 0, 0.15);
     }
     
-    /* Footer Navigation */
+    /* Footer */
     .footer-nav {
         text-align: center;
         margin-top: 50px;
@@ -369,7 +363,6 @@ $result = mysqli_query($conn, $query);
         }
     }
 </style>
-    <!-- Hero Section -->
     <section class="hero">
         <div class="container" style="text-align: center;">
             <h2>Informasi Penyakit Gigi</h2>
@@ -378,7 +371,6 @@ $result = mysqli_query($conn, $query);
     </section>
     
     
-    <!-- Disease Information Section -->
     <section class="disease-info">
         <div class="container">
             <h2 class="section-title">Daftar Penyakit Gigi Umum</h2>
@@ -406,11 +398,10 @@ $result = mysqli_query($conn, $query);
             <?php 
             endwhile;
 
-            // Bebaskan memory hasil query
             mysqli_free_result($diseases_query);
             ?>
             
-            <!-- Prevention Tips -->
+            <!-- Pencegahan-->
             <div class="prevention-tips">
                 <h3>Tips Pencegahan</h3>
                 <ol>
@@ -422,7 +413,6 @@ $result = mysqli_query($conn, $query);
                 </ol>
             </div>
             
-            <!-- CTA Section -->
             <div class="cta-section">
                 <p>Butuh diagnosa lebih personal?</p>
                 <div class="cta-buttons">
@@ -431,7 +421,7 @@ $result = mysqli_query($conn, $query);
                 </div>
             </div>
             
-            <!-- Footer Navigation -->
+            <!-- Footer-->
             <div class="footer-nav">
                 <a href="index.php">Kembali ke Beranda</a>
                 <a href="#">Pelajari Tentang Sistem</a>
@@ -443,10 +433,7 @@ $result = mysqli_query($conn, $query);
     </section>
     
     <script>
-        // JavaScript for interactive elements can be added here
         document.addEventListener('DOMContentLoaded', function() {
-            // You can add interactive functionality here
-            // For example, expanding/collapsing disease cards on mobile
             const diseaseCards = document.querySelectorAll('.disease-card');
             
             if (window.innerWidth < 768) {
