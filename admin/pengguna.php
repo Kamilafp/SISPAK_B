@@ -106,8 +106,10 @@ $result = mysqli_query($conn, $query);
                             <td><?= htmlspecialchars($row['nama']) ?></td>
                             <td><?= htmlspecialchars($row['email']) ?></td>
                             <td>
-                                <?php if($row['is_admin'] == 1): ?>
+                                <?php if($row['role'] == 'admin'): ?>
                                     <span class="badge bg-primary">Admin</span>
+                                <?php elseif ($row['role']=='pakar'): ?>
+                                    <span class="badge bg-success">Pakar</span>
                                 <?php else: ?>
                                     <span class="badge bg-secondary">User</span>
                                 <?php endif; ?>
