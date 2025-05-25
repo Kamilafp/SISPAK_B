@@ -135,7 +135,7 @@ if (!isLoggedIn() || ($_SESSION['role'] ?? '') !== 'admin') {
                 </a>
             </li> -->
             <li class="nav-item mt-3">
-                <a class="nav-link" href="../dashboard.php">
+                <a class="nav-link" href="../logout.php">
                     <i class="fas fa-external-link-alt"></i> Kembali ke Website
                 </a>
             </li>
