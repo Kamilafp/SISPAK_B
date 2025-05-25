@@ -1,7 +1,5 @@
 <?php
 require_once(__DIR__ . '/../config/database.php');
-
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -21,36 +19,34 @@ require_once(__DIR__ . '/../config/database.php');
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto">
-                <?php if (isset($_SESSION['user_id'])): ?>
-                    <?php if (isAdmin()): ?>
+                <ul class="navbar-nav ml-auto">
+                    <?php if (isset($_SESSION['user_id'])): ?>
+                        <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] == 1): ?>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/SISPAK_B/admin/dashboard.php">Admin</a>
+                            </li>
+                        <?php endif; ?>
                         <li class="nav-item">
-                            <a class="nav-link" href="/SISPAK_B/admin/dashboard.php">Admin</a>
+                            <a class="nav-link" href="/SISPAK_B/dashboard.php">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/SISPAK_B/konsultasi.php">Konsultasi</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/SISPAK_B/logout.php">Logout</a>
+                        </li>
+                    <?php else: ?>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/SISPAK_B/index.php">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/SISPAK_B/login.php">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/SISPAK_B/register.php">Register</a>
                         </li>
                     <?php endif; ?>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/SISPAK_B/dashboard.php">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/SISPAK_B/konsultasi.php">Konsultasi</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/SISPAK_B/logout.php">Logout</a>
-                    </li>
-                <?php else: ?>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/SISPAK_B/index.php">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/SISPAK_B/login.php">Login</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/SISPAK_B/register.php">Register</a>
-                    </li>
-                <?php endif; ?>
-            </ul>
-
+                </ul>
             </div>
         </div>
     </nav>
-    

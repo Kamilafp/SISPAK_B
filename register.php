@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $query = "INSERT INTO users (nama, email, password) VALUES ('$nama', '$email', '$hashed_password')";
             
             if (mysqli_query($conn, $query)) {
-                $success = 'Pendaftaran berhasil! Silakan login.';
+                $success = 'Pendaftaran berhasil! Anda akan dialihkan ke halaman login...';
                 header('refresh:2;url=login.php');
             } else {
                 $error = 'Terjadi kesalahan: ' . mysqli_error($conn);
@@ -42,47 +42,108 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Pendaftaran Akun</h4>
-                </div>
-                <div class="card-body">
-                    <?php if ($error): ?>
-                        <div class="alert alert-danger"><?= $error ?></div>
-                    <?php endif; ?>
-                    
-                    <?php if ($success): ?>
-                        <div class="alert alert-success"><?= $success ?></div>
-                    <?php else: ?>
-                        <form method="post">
-                            <div class="form-group">
-                                <label for="nama">Nama Lengkap</label>
-                                <input type="text" class="form-control" id="nama" name="nama" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="email">Email</label>
-                                <input type="email" class="form-control" id="email" name="email" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="password">Password</label>
-                                <input type="password" class="form-control" id="password" name="password" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="confirm_password">Konfirmasi Password</label>
-                                <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary btn-block">Daftar</button>
-                        </form>
-                    <?php endif; ?>
-                </div>
-                <div class="card-footer text-center">
-                    Sudah punya akun? <a href="login.php">Login disini</a>
-                </div>
-            </div>
-        </div>
+<style>
+    .register-container {
+        max-width: 500px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+    
+    .register-header {
+        color: #2c3e50;
+        margin-bottom: 1.5rem;
+        font-size: 1.8rem;
+        font-weight: 700;
+    }
+    
+    .register-form input {
+        width: 100%;
+        padding: 12px 15px;
+        margin-bottom: 1rem;
+        border: 1px solid #ddd;
+        border-radius: 50px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .register-form input:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        outline: none;
+    }
+    
+    .register-btn {
+        background: linear-gradient(135deg, #3498db, #2c3e50);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 50px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+        margin-top: 1rem;
+    }
+    
+    .register-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .register-footer {
+        margin-top: 1.5rem;
+        color: #7f8c8d;
+    }
+    
+    .register-footer a {
+        color: #3498db;
+        text-decoration: none;
+        font-weight: 600;
+    }
+    
+    .alert-danger {
+        background-color: #e74c3c;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 5px;
+        margin-bottom: 1rem;
+    }
+    
+    .alert-success {
+        background-color: #2ecc71;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 5px;
+        margin-bottom: 1rem;
+    }
+</style>
+
+<div class="register-container">
+    <h2 class="register-header">Daftar Akun Baru</h2>
+    
+    <?php if ($error): ?>
+        <div class="alert-danger"><?= $error ?></div>
+    <?php endif; ?>
+    
+    <?php if ($success): ?>
+        <div class="alert-success"><?= $success ?></div>
+    <?php else: ?>
+        <form method="post" class="register-form">
+            <input type="text" name="nama" placeholder="Nama Lengkap" required>
+            <input type="email" name="email" placeholder="Alamat Email" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <input type="password" name="confirm_password" placeholder="Konfirmasi Password" required>
+            <button type="submit" class="register-btn">Daftar Sekarang</button>
+        </form>
+    <?php endif; ?>
+    
+    <div class="register-footer">
+        Sudah punya akun? <a href="login.php">Masuk disini</a>
     </div>
 </div>
 

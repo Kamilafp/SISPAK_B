@@ -37,35 +37,94 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header bg-success text-white">
-                    <h4 class="mb-0">Login</h4>
-                </div>
-                <div class="card-body">
-                    <?php if ($error): ?>
-                        <div class="alert alert-danger"><?= $error ?></div>
-                    <?php endif; ?>
-                    
-                    <form method="post">
-                        <div class="form-group">
-                            <label for="email">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="password">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
-                        </div>
-                        <button type="submit" class="btn btn-success btn-block">Login</button>
-                    </form>
-                </div>
-                <div class="card-footer text-center">
-                    Belum punya akun? <a href="register.php">Daftar disini</a>
-                </div>
-            </div>
-        </div>
+<style>
+    .login-container {
+        max-width: 500px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+    
+    .login-header {
+        color: #2c3e50;
+        margin-bottom: 1.5rem;
+        font-size: 1.8rem;
+        font-weight: 700;
+    }
+    
+    .login-form input {
+        width: 100%;
+        padding: 12px 15px;
+        margin-bottom: 1rem;
+        border: 1px solid #ddd;
+        border-radius: 50px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .login-form input:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        outline: none;
+    }
+    
+    .login-btn {
+        background: linear-gradient(135deg, #3498db, #2c3e50);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 50px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+        margin-top: 1rem;
+    }
+    
+    .login-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .login-footer {
+        margin-top: 1.5rem;
+        color: #7f8c8d;
+    }
+    
+    .login-footer a {
+        color: #3498db;
+        text-decoration: none;
+        font-weight: 600;
+    }
+    
+    .alert-danger {
+        background-color: #e74c3c;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 5px;
+        margin-bottom: 1rem;
+    }
+</style>
+
+<div class="login-container">
+    <h2 class="login-header">Masuk ke Akun Anda</h2>
+    
+    <?php if ($error): ?>
+        <div class="alert-danger"><?= $error ?></div>
+    <?php endif; ?>
+    
+    <form method="post" class="login-form">
+        <input type="email" name="email" placeholder="Alamat Email" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <button type="submit" class="login-btn">Masuk</button>
+    </form>
+    
+    <div class="login-footer">
+        Belum punya akun? <a href="register.php">Daftar Sekarang</a>
     </div>
 </div>
 
