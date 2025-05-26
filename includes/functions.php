@@ -53,7 +53,7 @@ function hitungNaiveBayes($gejala_terpilih) {
 
             // Hitung P(ai|vj) menggunakan rumus Naïve Bayes (smoothing)
             $p_ai_vj = (($nc + $total_gejala) * $p) / ($n + $total_gejala);
-            //echo "P($gejala_id|$penyakit_id) = ($nc + $total_gejala * $p) / ($n + $total_gejala) = $p_ai_vj<br>";
+            echo "P($gejala_id|$penyakit_id) = ($nc + $total_gejala * $p) / ($n + $total_gejala) = $p_ai_vj<br>";
             
             // Perbarui probabilitas dengan mengalikan dengan probabilitas gejala
             $probabilitas *= $p_ai_vj;
