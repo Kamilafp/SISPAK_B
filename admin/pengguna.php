@@ -217,92 +217,75 @@ $result = mysqli_query($conn, $query);
             </div>
         </div>
     </div>
+    <div class="card-body">
+        <?php if (isset($_SESSION['flash_message'])): ?>
+            <div class="alert alert-<?= $_SESSION['flash_message']['type'] ?> alert-dismissible fade show" role="alert">
+                <?= $_SESSION['flash_message']['message'] ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <?php unset($_SESSION['flash_message']); ?>
+        <?php endif; ?>
 
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">
-                            <i class="fas fa-list-ul me-2"></i> Daftar Pengguna
-                        </h5>
-                        <form class="d-flex" method="get" action="">
-                            <input type="text" name="search" class="form-control form-control-sm" 
-                                   placeholder="Cari pengguna..." value="<?= htmlspecialchars($search) ?>">
-                            <button type="submit" class="btn btn-sm btn-outline-primary ms-2">
-                                <i class="fas fa-search"></i>
-                            </button>
-                            <?php if (!empty($search)): ?>
-                                <a href="pengguna.php" class="btn btn-sm btn-outline-danger ms-2">
-                                    <i class="fas fa-times"></i> Reset
+        <?php if (mysqli_num_rows($result) > 0): ?>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th width="5%">No</th>
+                            <th>Nama</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Tanggal Daftar</th>
+                            <th width="15%">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php 
+                        $no = $start + 1;
+                        while($row = mysqli_fetch_assoc($result)): 
+                        ?>
+                        <tr>
+                            <td><?= $no++ ?></td>
+                            <td><?= htmlspecialchars($row['nama']) ?></td>
+                            <td><?= htmlspecialchars($row['email']) ?></td>
+                            <td>
+                                <?php if($row['role'] == "admin"): ?>
+                                    <span class="badge bg-primary">Admin</span>
+                                <?php elseif($row['role'] == "pakar"): ?>
+                                    <span class="badge bg-primary">Pakar</span>
+                                <?php else: ?>
+                                    <span class="badge bg-primary">User</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <small class="text-muted">
+                                    <?= date('d/m/Y', strtotime($row['created_at'])) ?>
+                                </small>
+                            </td>
+                            <td>
+                                <a href="user_edit.php?id=<?= $row['id'] ?>" 
+                                   class="btn btn-sm btn-outline-primary" title="Edit">
+                                    <i class="fas fa-edit"></i>
                                 </a>
-                            <?php endif; ?>
-                        </form>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <?php if (mysqli_num_rows($result) > 0): ?>
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                    <th width="50">#</th>
-                                    <th>Nama</th>
-                                    <th>Email</th>
-                                    <th width="120">Role</th>
-                                    <th width="150">Tanggal Daftar</th>
-                                    <th width="150" class="text-center">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php 
-                                $no = $start + 1;
-                                while ($row = mysqli_fetch_assoc($result)): 
-                                ?>
-                                <tr>
-                                    <td><?= $no++ ?></td>
-                                    <td><?= htmlspecialchars($row['nama']) ?></td>
-                                    <td><?= htmlspecialchars($row['email']) ?></td>
-                                    <td>
-                                        <?php if($row['role'] == "admin"): ?>
-                                            <span class="badge bg-primary">Admin</span>
-                                        <?php elseif($row['role'] == "pakar"): ?>
-                                            <span class="badge bg-primary">Pakar</span>
-                                        <?php else: ?>
-                                            <span class="badge bg-secondary">User</span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td>
-                                        <small class="text-muted">
-                                            <?= date('d/m/Y', strtotime($row['created_at'])) ?>
-                                        </small>
-                                    </td>
-                                    <td class="text-center">
-                                        <div class="btn-group btn-group-sm" role="group">
-                                            <a href="user_edit.php?id=<?= $row['id'] ?>" 
-                                               class="btn btn-outline-warning" title="Edit">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <?php if ($row['id'] != $_SESSION['user_id']): ?>
-                                                <a href="?delete=<?= $row['id'] ?>" 
-                                                   class="btn btn-outline-danger" 
-                                                   onclick="return confirm('Yakin ingin menghapus pengguna ini?')" 
-                                                   title="Hapus">
-                                                    <i class="fas fa-trash"></i>
-                                                </a>
-                                            <?php else: ?>
-                                                <button class="btn btn-outline-secondary" disabled 
-                                                        title="Tidak dapat menghapus akun sendiri">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            <?php endif; ?>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <?php endwhile; ?>
-                            </tbody>
-                        </table>
-                    </div>
+
+                                <?php if ($row['id'] != $_SESSION['user_id']): ?>
+                                    <a href="?delete=<?= $row['id'] ?>" 
+                                       class="btn btn-sm btn-outline-danger" 
+                                       onclick="return confirm('Apakah Anda yakin ingin menghapus pengguna ini?')" 
+                                       title="Hapus">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                <?php else: ?>
+                                    <button class="btn btn-sm btn-outline-secondary" disabled title="Tidak dapat menghapus akun sendiri">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                        <?php endwhile; ?>
+                    </tbody>
+                </table>
+            </div>
 
                     <!-- Pagination -->
                     <nav aria-label="Page navigation">

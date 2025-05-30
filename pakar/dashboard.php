@@ -1,8 +1,8 @@
 <?php
-$page_title = "Dashboard Admin";
+$page_title = "Dashboard Pakar";
 require_once(__DIR__ . '/layout/header_layout.php');
 
-if (!isLoggedIn() || ($_SESSION['role'] ?? '') !== 'admin') {
+if (!isLoggedIn() || ($_SESSION['role'] ?? '') !== 'pakar') {
     header('Location: /../../login.php');
     exit();
 }
@@ -16,9 +16,10 @@ $gejala_query = "SELECT COUNT(*) as total FROM gejala";
 $gejala_result = mysqli_query($conn, $gejala_query);
 $gejala = mysqli_fetch_assoc($gejala_result);
 
-$user_query = "SELECT COUNT(*) as total FROM users";
+$user_query = "SELECT COUNT(*) as total FROM users WHERE role = 'user'";
 $user_result = mysqli_query($conn, $user_query);
 $user = mysqli_fetch_assoc($user_result);
+$total_users = $user['total']; // Jumlah user dengan role 'user'
 
 $riwayat_query = "SELECT COUNT(*) as total FROM riwayat";
 $riwayat_result = mysqli_query($conn, $riwayat_query);
@@ -35,7 +36,7 @@ $recent_result = mysqli_query($conn, $recent_query);
 ?>
 
 <!-- Statistics Cards -->
-<!-- <div class="row mb-4">
+<div class="row mb-4">
     <div class="col-xl-3 col-md-6 mb-4">
         <div class="card stats-card bg-primary text-white">
             <div class="card-body position-relative">
@@ -64,24 +65,9 @@ $recent_result = mysqli_query($conn, $recent_query);
                 </a>
             </div>
         </div>
-    </div> -->
-    
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card stats-card bg-info text-white">
-            <div class="card-body position-relative">
-                <div class="stats-icon">
-                    <i class="fas fa-users"></i>
-                </div>
-                <h6 class="card-title">Total Pengguna</h6>
-                <div class="stats-number"><?= $user['total'] ?? 0 ?></div>
-                <a href="pengguna.php" class="btn btn-light btn-sm mt-2">
-                    <i class="fas fa-arrow-right me-1"></i>Lihat Detail
-                </a>
-            </div>
-        </div>
     </div>
     
-    <!-- <div class="col-xl-3 col-md-6 mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
         <div class="card stats-card bg-warning text-dark">
             <div class="card-body position-relative">
                 <div class="stats-icon">
@@ -94,11 +80,11 @@ $recent_result = mysqli_query($conn, $recent_query);
                 </a>
             </div>
         </div>
-    </div> -->
+    </div>
 </div>
 
 <!-- Quick Actions -->
-<!-- <div class="row mb-4">
+<div class="row mb-4">
     <div class="col-12">
         <div class="card">
             <div class="card-header">
@@ -130,7 +116,7 @@ $recent_result = mysqli_query($conn, $recent_query);
             </div>
         </div>
     </div>
-</div> -->
+</div>
 
 <!-- Recent Activity -->
 <div class="row">
@@ -147,7 +133,7 @@ $recent_result = mysqli_query($conn, $recent_query);
                         <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    <th>Pengguna</th>
+                                    <th>Pasien</th>
                                     <th>Hasil Diagnosis</th>
                                     <th>Tanggal</th>
                                 </tr>
@@ -223,7 +209,7 @@ $recent_result = mysqli_query($conn, $recent_query);
                 
                 <div class="mb-3">
                     <div class="d-flex justify-content-between align-items-center">
-                        <span>Pengguna Aktif</span>
+                        <span>Pasien</span>
                         <span class="badge bg-info"><?= $user['total'] ?? 0 ?></span>
                     </div>
                     <div class="progress mt-1" style="height: 5px;">

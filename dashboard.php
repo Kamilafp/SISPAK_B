@@ -79,7 +79,7 @@ $riwayat_result = mysqli_query($conn, $riwayat_query);
                     <div class="list-group">
                         <a href="konsultasi.php" class="list-group-item list-group-item-action">Diagnosa Penyakit</a>
                         <a href="riwayat.php" class="list-group-item list-group-item-action">Lihat Riwayat Lengkap</a>
-                        <a href="#" class="list-group-item list-group-item-action">Informasi Penyakit Gigi</a>
+                        <a href="informasi_penyakit.php" class="list-group-item list-group-item-action">Informasi Penyakit Gigi</a>
                         <a href="logout.php" class="list-group-item list-group-item-action text-danger">Logout</a>
                     </div>
                 </div>

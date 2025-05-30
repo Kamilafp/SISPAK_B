@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: May 25, 2025 at 06:11 AM
+-- Generation Time: May 26, 2025 at 12:59 AM
 -- Server version: 8.0.30
 -- PHP Version: 8.3.12
 
@@ -101,7 +101,10 @@ INSERT INTO `aturan` (`id`, `penyakit_id`, `gejala_id`) VALUES
 (61, 7, 10),
 (62, 7, 18),
 (63, 7, 23),
-(64, 7, 24);
+(64, 7, 24),
+(65, 5, 26),
+(66, 3, 27),
+(67, 5, 28);
 
 -- --------------------------------------------------------
 
@@ -143,7 +146,10 @@ INSERT INTO `gejala` (`id`, `kode_gejala`, `nama_gejala`) VALUES
 (21, 'G21', 'Gusi yang terdorong maju membuat gigi terlihat panjang/tonggos'),
 (22, 'G22', 'Nyeri saat mengunyah'),
 (23, 'G23', 'Mulut menjadi kering'),
-(24, 'G24', 'Adanya lapisan pada lidah');
+(24, 'G24', 'Adanya lapisan pada lidah'),
+(26, 'G25', 'Sulit membuka mulut'),
+(27, 'G26', 'Akar gigi terlihat'),
+(28, 'G27', 'Demam');
 
 -- --------------------------------------------------------
 
@@ -217,7 +223,23 @@ INSERT INTO `riwayat` (`id`, `user_id`, `penyakit_id`, `tanggal`, `gejala`) VALU
 (28, 2, 3, '2025-05-15', 'G1,G3,G5,G10'),
 (29, 2, 3, '2025-05-15', 'G1,G3,G5,G10'),
 (30, 2, 1, '2025-05-15', 'G2,G3,G11,G12,G13,G14'),
-(31, 4, 5, '2025-05-17', 'G1,G4,G7,G8,G16');
+(31, 4, 5, '2025-05-17', 'G1,G4,G7,G8,G16'),
+(32, 5, 2, '2025-05-25', 'G2,G9,G12,G17,G24'),
+(33, 5, 2, '2025-05-25', 'G2,G3,G6,G9,G11'),
+(34, 5, 5, '2025-05-25', 'G1,G2,G21,G27,G28'),
+(35, 5, 6, '2025-05-25', 'G19,G20,G21,G24'),
+(36, 5, 2, '2025-05-25', 'G19,G20,G21,G24'),
+(37, 5, 2, '2025-05-25', 'G1,G28'),
+(38, 5, 2, '2025-05-25', 'G23,G24'),
+(39, 5, 7, '2025-05-25', 'G23,G24'),
+(40, 5, 1, '2025-05-25', 'G23,G24'),
+(41, 5, 7, '2025-05-25', 'G23,G24'),
+(42, 5, 7, '2025-05-25', 'G23,G24'),
+(43, 5, 7, '2025-05-25', 'G23,G24'),
+(44, 5, 7, '2025-05-25', 'G23,G24'),
+(45, 5, 3, '2025-05-26', 'G15,G16,G17'),
+(46, 5, 3, '2025-05-26', 'G15,G16,G17'),
+(47, 5, 1, '2025-05-26', 'G2,G3,G11,G12,G13,G14');
 
 -- --------------------------------------------------------
 
@@ -294,13 +316,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `aturan`
 --
 ALTER TABLE `aturan`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=65;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=68;
 
 --
 -- AUTO_INCREMENT for table `gejala`
 --
 ALTER TABLE `gejala`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT for table `penyakit`
@@ -312,7 +334,7 @@ ALTER TABLE `penyakit`
 -- AUTO_INCREMENT for table `riwayat`
 --
 ALTER TABLE `riwayat`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
 
 --
 -- AUTO_INCREMENT for table `users`
