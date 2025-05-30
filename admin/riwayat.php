@@ -1,33 +1,56 @@
 <?php
+ob_start(); // Mulai output buffering
 $page_title = "Riwayat Diagnosis";
+require_once(__DIR__ . '/../includes/functions.php');
 require_once(__DIR__ . '/layout/header_layout.php');
 
+// Cek koneksi database
+if (!$conn) {
+    die("Koneksi database gagal: " . mysqli_connect_error());
+}
+
+// Cek login dan role admin
 if (!isLoggedIn() || ($_SESSION['role'] ?? '') !== 'admin') {
     header('Location: /../../login.php');
     exit();
 }
 
-// Pagination settings
+// Handle flash messages
+if (isset($_SESSION['flash_message'])) {
+    $flash_type = $_SESSION['flash_message']['type'];
+    $flash_msg = $_SESSION['flash_message']['message'];
+    unset($_SESSION['flash_message']);
+}
+
+// Konfigurasi pagination
 $per_page = 10;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$page = max(1, $page); // Pastikan tidak kurang dari 1
 $start = ($page > 1) ? ($page * $per_page) - $per_page : 0;
 
-// Search functionality
-$search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
-$search_condition = $search ? "AND (u.nama LIKE '%$search%' OR p.nama_penyakit LIKE '%$search%')" : '';
+// Pencarian riwayat
+$search = isset($_GET['search']) ? trim($_GET['search']) : '';
+$search_condition = '';
+$search_param = '';
 
-// Get total records for pagination
+if (!empty($search)) {
+    $search = mysqli_real_escape_string($conn, $search);
+    $search_condition = " AND (u.nama LIKE '%$search%' OR p.nama_penyakit LIKE '%$search%' OR r.gejala LIKE '%$search%')";
+    $search_param = '&search=' . urlencode($search);
+}
+
+// Hitung total data dengan kondisi pencarian
 $total_query = "SELECT COUNT(*) as total FROM riwayat r
                 JOIN users u ON r.user_id = u.id
                 LEFT JOIN penyakit p ON r.penyakit_id = p.id
                 WHERE 1 $search_condition";
 $total_result = mysqli_query($conn, $total_query);
-$total_row = mysqli_fetch_assoc($total_result);
-$total = $total_row['total'];
+$total_data = mysqli_fetch_assoc($total_result);
+$total = $total_data['total'];
 $pages = ceil($total / $per_page);
 
-// Get records for current page
-$query = "SELECT r.*, u.nama, p.nama_penyakit 
+// Query data dengan pagination dan pencarian
+$query = "SELECT r.*, u.nama, p.nama_penyakit, p.kode_penyakit 
           FROM riwayat r
           JOIN users u ON r.user_id = u.id
           LEFT JOIN penyakit p ON r.penyakit_id = p.id
@@ -37,118 +60,148 @@ $query = "SELECT r.*, u.nama, p.nama_penyakit
 $result = mysqli_query($conn, $query);
 ?>
 
-<div class="card">
-    <div class="card-header">
-        <div class="d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0">
-                <i class="fas fa-history me-2"></i>Riwayat Diagnosis
-            </h5>
-            <div class="d-flex">
-                <form method="get" class="me-2">
-                    <div class="input-group">
-                        <input type="text" class="form-control" name="search" placeholder="Cari..." 
-                               value="<?= htmlspecialchars($search) ?>">
-                        <button class="btn btn-outline-secondary" type="submit">
-                            <i class="fas fa-search"></i>
-                        </button>
+<div class="container-fluid py-4">
+    <!-- Flash Message -->
+    <?php if (isset($flash_type) && isset($flash_msg)): ?>
+    <div class="alert alert-<?= $flash_type ?> alert-dismissible fade show" role="alert">
+        <?= $flash_msg ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <?php endif; ?>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-history me-2"></i> Riwayat Diagnosis
+                        </h5>
+                        <form class="d-flex" method="get" action="">
+                            <input type="text" name="search" class="form-control form-control-sm" 
+                                   placeholder="Cari riwayat..." value="<?= htmlspecialchars($search) ?>">
+                            <button type="submit" class="btn btn-sm btn-outline-light ms-2">
+                                <i class="fas fa-search"></i>
+                            </button>
+                            <?php if (!empty($search)): ?>
+                                <a href="riwayat.php" class="btn btn-sm btn-outline-light ms-2">
+                                    <i class="fas fa-times"></i> Reset
+                                </a>
+                            <?php endif; ?>
+                        </form>
                     </div>
-                </form>
+                </div>
+                <div class="card-body">
+                    <?php if (mysqli_num_rows($result) > 0): ?>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="50">No</th>
+                                    <th>Pengguna</th>
+                                    <th>Hasil Diagnosis</th>
+                                    <th>Gejala</th>
+                                    <th width="150">Tanggal</th>
+                                    <th width="120" class="text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php 
+                                $no = $start + 1;
+                                while ($row = mysqli_fetch_assoc($result)): 
+                                ?>
+                                <tr>
+                                    <td><?= $no++ ?></td>
+                                    <td><?= htmlspecialchars($row['nama']) ?></td>
+                                    <td>
+                                        <?php if(!empty($row['nama_penyakit'])): ?>
+                                            <span class="badge bg-primary"><?= htmlspecialchars($row['kode_penyakit']) ?></span>
+                                            <?= htmlspecialchars($row['nama_penyakit']) ?>
+                                        <?php else: ?>
+                                            <span class="badge bg-secondary">Tidak Terdiagnosis</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <div class="text-truncate" style="max-width: 200px;" 
+                                             data-bs-toggle="tooltip" data-bs-placement="top" 
+                                             title="<?= htmlspecialchars($row['gejala']) ?>">
+                                            <?= htmlspecialchars(substr($row['gejala'], 0, 50)) ?>...
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">
+                                            <?= date('d/m/Y', strtotime($row['tanggal'])) ?>
+                                        </small>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="riwayat_detail.php?id=<?= $row['id'] ?>" 
+                                               class="btn btn-outline-primary" title="Detail">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="#" class="btn btn-outline-danger" 
+                                               onclick="confirmDelete(<?= $row['id'] ?>)" title="Hapus">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <?php endwhile; ?>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center mt-4">
+                            <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                                <a class="page-link" href="?page=<?= $page-1 ?><?= $search_param ?>">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                            
+                            <?php for($i = 1; $i <= $pages; $i++): ?>
+                                <li class="page-item <?= ($page == $i) ? 'active' : '' ?>">
+                                    <a class="page-link" href="?page=<?= $i ?><?= $search_param ?>"><?= $i ?></a>
+                                </li>
+                            <?php endfor; ?>
+                            
+                            <li class="page-item <?= ($page >= $pages) ? 'disabled' : '' ?>">
+                                <a class="page-link" href="?page=<?= $page+1 ?><?= $search_param ?>">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                    <?php else: ?>
+                    <div class="text-center py-5">
+                        <div class="display-4 text-muted mb-4">
+                            <i class="fas fa-history"></i>
+                        </div>
+                        <h5>Tidak ada riwayat diagnosis</h5>
+                        <p class="text-muted">Belum ada pengguna yang melakukan diagnosis</p>
+                        <?php if (!empty($search)): ?>
+                            <a href="riwayat.php" class="btn btn-primary mt-3">
+                                <i class="fas fa-arrow-left me-1"></i> Kembali ke semua riwayat
+                            </a>
+                        <?php endif; ?>
+                    </div>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
     </div>
-    <div class="card-body">
-        <?php if (mysqli_num_rows($result) > 0): ?>
-            <div class="table-responsive">
-                <table class="table table-striped table-hover">
-                    <thead class="table-light">
-                        <tr>
-                            <th width="5%">#</th>
-                            <th>Pengguna</th>
-                            <th>Hasil Diagnosis</th>
-                            <th>Gejala</th>
-                            <th>Tanggal</th>
-                            <th width="10%">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php 
-                        $no = $start + 1;
-                        while($row = mysqli_fetch_assoc($result)): 
-                        ?>
-                        <tr>
-                            <td><?= $no++ ?></td>
-                            <td>
-                                <?= htmlspecialchars($row['nama']) ?>
-                            </td>
-                            <td>
-                                <?php if(!empty($row['nama_penyakit'])): ?>
-                                    <span class="badge bg-success">
-                                        <?= htmlspecialchars($row['nama_penyakit']) ?>
-                                    </span>
-                                <?php else: ?>
-                                    <span class="badge bg-secondary">Tidak Terdiagnosis</span>
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <small><?= substr(htmlspecialchars($row['gejala']), 0, 50) ?>...</small>
-                            </td>
-                            <td>
-                                <small class="text-muted">
-                                    <?= date('d/m/Y', strtotime($row['tanggal'])) ?>
-                                </small>
-                            </td>
-                            <td>
-                                <a href="riwayat_detail.php?id=<?= $row['id'] ?>" 
-                                   class="btn btn-sm btn-outline-primary" title="Detail">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                <a href="#" class="btn btn-sm btn-outline-danger" 
-                                   onclick="confirmDelete(<?= $row['id'] ?>)" title="Hapus">
-                                    <i class="fas fa-trash"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        <?php endwhile; ?>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Pagination -->
-            <nav aria-label="Page navigation">
-                <ul class="pagination justify-content-center">
-                    <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
-                        <a class="page-link" href="?page=<?= $page-1 ?>&search=<?= $search ?>">
-                            <i class="fas fa-chevron-left"></i>
-                        </a>
-                    </li>
-                    
-                    <?php for($i = 1; $i <= $pages; $i++): ?>
-                        <li class="page-item <?= ($page == $i) ? 'active' : '' ?>">
-                            <a class="page-link" href="?page=<?= $i ?>&search=<?= $search ?>">
-                                <?= $i ?>
-                            </a>
-                        </li>
-                    <?php endfor; ?>
-                    
-                    <li class="page-item <?= ($page >= $pages) ? 'disabled' : '' ?>">
-                        <a class="page-link" href="?page=<?= $page+1 ?>&search=<?= $search ?>">
-                            <i class="fas fa-chevron-right"></i>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-        <?php else: ?>
-            <div class="text-center text-muted py-5">
-                <i class="fas fa-inbox fa-4x mb-4"></i>
-                <h5>Tidak ada riwayat diagnosis</h5>
-                <p>Belum ada pengguna yang melakukan diagnosis</p>
-            </div>
-        <?php endif; ?>
-    </div>
 </div>
 
-
 <script>
+// Aktifkan tooltip
+document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+
 function confirmDelete(id) {
     if (confirm('Apakah Anda yakin ingin menghapus riwayat ini?')) {
         window.location.href = 'riwayat_hapus.php?id=' + id;
@@ -158,4 +211,5 @@ function confirmDelete(id) {
 
 <?php 
 require_once(__DIR__ . '/layout/footer_layout.php'); 
+ob_end_flush(); // Akhir output buffering
 ?>

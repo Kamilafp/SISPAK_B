@@ -4,7 +4,7 @@ session_start();
 require_once(__DIR__ . '/../../includes/functions.php');
 
 if (!isLoggedIn() || ($_SESSION['role'] ?? '') !== 'admin') {
-    header('Location: /../../login.php');
+    header('Location: /SISPAK_B/login.php');
     exit();
 }
 ?>

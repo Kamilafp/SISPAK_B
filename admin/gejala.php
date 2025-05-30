@@ -3,6 +3,12 @@ ob_start(); // Mulai output buffering untuk menghindari header issues
 require_once(__DIR__ . '/../includes/functions.php');
 require_once(__DIR__ . '/layout/header_layout.php');
 
+// Cek koneksi database
+if (!$conn) {
+    die("Koneksi database gagal: " . mysqli_connect_error());
+}
+
+// Cek login dan role admin
 if (!isLoggedIn() || ($_SESSION['role'] ?? '') !== 'admin') {
     header('Location: /../../login.php');
     exit();
@@ -17,11 +23,24 @@ if (isset($_SESSION['flash_message'])) {
 
 // Tambah gejala baru
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tambah'])) {
-    $kode = mysqli_real_escape_string($conn, $_POST['kode']);
-    $nama = mysqli_real_escape_string($conn, $_POST['nama']);
+    $kode = trim($_POST['kode']);
+    $nama = trim($_POST['nama']);
     
-    $query = "INSERT INTO gejala (kode_gejala, nama_gejala) VALUES ('$kode', '$nama')";
-    if (mysqli_query($conn, $query)) {
+    // Validasi format kode gejala (contoh: G01)
+    if (!preg_match('/^G\d{2}$/', $kode)) {
+        $_SESSION['flash_message'] = [
+            'type' => 'danger',
+            'message' => 'Format kode gejala harus G diikuti 2 angka (contoh: G01)'
+        ];
+        header('Location: gejala.php');
+        exit();
+    }
+    
+    // Gunakan prepared statement
+    $stmt = $conn->prepare("INSERT INTO gejala (kode_gejala, nama_gejala) VALUES (?, ?)");
+    $stmt->bind_param("ss", $kode, $nama);
+    
+    if ($stmt->execute()) {
         $_SESSION['flash_message'] = [
             'type' => 'success',
             'message' => 'Gejala berhasil ditambahkan'
@@ -29,9 +48,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tambah'])) {
     } else {
         $_SESSION['flash_message'] = [
             'type' => 'danger',
-            'message' => 'Gagal menambahkan gejala: ' . mysqli_error($conn)
+            'message' => 'Gagal menambahkan gejala: ' . $stmt->error
         ];
     }
+    $stmt->close();
     header('Location: gejala.php');
     exit();
 }
@@ -40,10 +60,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tambah'])) {
 if (isset($_GET['hapus'])) {
     $id = (int)$_GET['hapus'];
     
+    if ($id <= 0) {
+        $_SESSION['flash_message'] = [
+            'type' => 'danger',
+            'message' => 'ID gejala tidak valid'
+        ];
+        header('Location: gejala.php');
+        exit();
+    }
+    
     // Cek apakah gejala digunakan di aturan
-    $check_query = "SELECT COUNT(*) as total FROM aturan WHERE gejala_id = $id";
-    $check_result = mysqli_query($conn, $check_query);
-    $check_data = mysqli_fetch_assoc($check_result);
+    $check_query = "SELECT COUNT(*) as total FROM aturan WHERE gejala_id = ?";
+    $stmt = $conn->prepare($check_query);
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $check_result = $stmt->get_result();
+    $check_data = $check_result->fetch_assoc();
+    $stmt->close();
     
     if ($check_data['total'] > 0) {
         $_SESSION['flash_message'] = [
@@ -51,8 +84,10 @@ if (isset($_GET['hapus'])) {
             'message' => 'Tidak dapat menghapus karena gejala digunakan dalam aturan'
         ];
     } else {
-        $query = "DELETE FROM gejala WHERE id = $id";
-        if (mysqli_query($conn, $query)) {
+        $stmt = $conn->prepare("DELETE FROM gejala WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        
+        if ($stmt->execute()) {
             $_SESSION['flash_message'] = [
                 'type' => 'success',
                 'message' => 'Gejala berhasil dihapus'
@@ -60,28 +95,41 @@ if (isset($_GET['hapus'])) {
         } else {
             $_SESSION['flash_message'] = [
                 'type' => 'danger',
-                'message' => 'Gagal menghapus gejala: ' . mysqli_error($conn)
+                'message' => 'Gagal menghapus gejala: ' . $stmt->error
             ];
         }
+        $stmt->close();
     }
     header('Location: gejala.php');
     exit();
 }
 
-// Ambil semua gejala dengan pagination
+// Konfigurasi pagination
 $per_page = 10;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$page = max(1, $page); // Pastikan tidak kurang dari 1
 $start = ($page > 1) ? ($page * $per_page) - $per_page : 0;
 
-// Hitung total data
-$total_query = "SELECT COUNT(*) as total FROM gejala";
+// Pencarian gejala
+$search = isset($_GET['search']) ? trim($_GET['search']) : '';
+$search_condition = '';
+$search_param = '';
+
+if (!empty($search)) {
+    $search = mysqli_real_escape_string($conn, $search);
+    $search_condition = " WHERE nama_gejala LIKE '%$search%' OR kode_gejala LIKE '%$search%'";
+    $search_param = '&search=' . urlencode($search);
+}
+
+// Hitung total data dengan kondisi pencarian
+$total_query = "SELECT COUNT(*) as total FROM gejala" . $search_condition;
 $total_result = mysqli_query($conn, $total_query);
 $total_data = mysqli_fetch_assoc($total_result);
 $total = $total_data['total'];
 $pages = ceil($total / $per_page);
 
-// Query data dengan pagination
-$query = "SELECT * FROM gejala ORDER BY kode_gejala LIMIT $start, $per_page";
+// Query data dengan pagination dan pencarian
+$query = "SELECT * FROM gejala" . $search_condition . " ORDER BY kode_gejala LIMIT $start, $per_page";
 $result = mysqli_query($conn, $query);
 ?>
 
@@ -114,7 +162,9 @@ $result = mysqli_query($conn, $query);
                             <div class="row g-3">
                                 <div class="col-md-2">
                                     <label class="form-label">Kode Gejala</label>
-                                    <input type="text" name="kode" class="form-control" placeholder="G01" required>
+                                    <input type="text" name="kode" class="form-control" placeholder="G01" required
+                                           pattern="G\d{2}" title="Format: G diikuti 2 angka (contoh: G01)">
+                                    <small class="text-muted">Format: G diikuti 2 angka (contoh: G01)</small>
                                 </div>
                                 <div class="col-md-10">
                                     <label class="form-label">Nama Gejala</label>
@@ -143,10 +193,15 @@ $result = mysqli_query($conn, $query);
                         </h5>
                         <form class="d-flex" method="get" action="">
                             <input type="text" name="search" class="form-control form-control-sm" 
-                                   placeholder="Cari gejala..." value="<?= isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '' ?>">
+                                   placeholder="Cari gejala..." value="<?= htmlspecialchars($search) ?>">
                             <button type="submit" class="btn btn-sm btn-outline-primary ms-2">
                                 <i class="fas fa-search"></i>
                             </button>
+                            <?php if (!empty($search)): ?>
+                                <a href="gejala.php" class="btn btn-sm btn-outline-danger ms-2">
+                                    <i class="fas fa-times"></i> Reset
+                                </a>
+                            <?php endif; ?>
                         </form>
                     </div>
                 </div>
@@ -192,19 +247,19 @@ $result = mysqli_query($conn, $query);
                     <nav aria-label="Page navigation">
                         <ul class="pagination justify-content-center mt-4">
                             <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
-                                <a class="page-link" href="?page=<?= $page-1 ?>">
+                                <a class="page-link" href="?page=<?= $page-1 ?><?= $search_param ?>">
                                     <i class="fas fa-chevron-left"></i>
                                 </a>
                             </li>
                             
                             <?php for($i = 1; $i <= $pages; $i++): ?>
                                 <li class="page-item <?= ($page == $i) ? 'active' : '' ?>">
-                                    <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
+                                    <a class="page-link" href="?page=<?= $i ?><?= $search_param ?>"><?= $i ?></a>
                                 </li>
                             <?php endfor; ?>
                             
                             <li class="page-item <?= ($page >= $pages) ? 'disabled' : '' ?>">
-                                <a class="page-link" href="?page=<?= $page+1 ?>">
+                                <a class="page-link" href="?page=<?= $page+1 ?><?= $search_param ?>">
                                     <i class="fas fa-chevron-right"></i>
                                 </a>
                             </li>
@@ -217,6 +272,11 @@ $result = mysqli_query($conn, $query);
                         </div>
                         <h5>Tidak ada data gejala</h5>
                         <p class="text-muted">Silakan tambahkan gejala baru menggunakan form di atas</p>
+                        <?php if (!empty($search)): ?>
+                            <a href="gejala.php" class="btn btn-primary mt-3">
+                                <i class="fas fa-arrow-left me-1"></i> Kembali ke semua gejala
+                            </a>
+                        <?php endif; ?>
                     </div>
                     <?php endif; ?>
                 </div>
