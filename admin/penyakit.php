@@ -1,7 +1,15 @@
 <?php
+ob_start(); // Mulai output buffering
+$page_title = "Manajemen Penyakit";
 require_once(__DIR__ . '/../includes/functions.php');
 require_once(__DIR__ . '/layout/header_layout.php');
 
+// Cek koneksi database
+if (!$conn) {
+    die("Koneksi database gagal: " . mysqli_connect_error());
+}
+
+// Cek login dan role admin
 if (!isLoggedIn() || ($_SESSION['role'] ?? '') !== 'admin') {
     header('Location: /../../login.php');
     exit();
@@ -16,14 +24,25 @@ if (isset($_SESSION['flash_message'])) {
 
 // Tambah penyakit baru
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tambah'])) {
-    $kode = mysqli_real_escape_string($conn, $_POST['kode']);
-    $nama = mysqli_real_escape_string($conn, $_POST['nama']);
-    $deskripsi = mysqli_real_escape_string($conn, $_POST['deskripsi']);
-    $solusi = mysqli_real_escape_string($conn, $_POST['solusi']);
+    $kode = trim($_POST['kode']);
+    $nama = trim($_POST['nama']);
+    $deskripsi = trim($_POST['deskripsi']);
+    $solusi = trim($_POST['solusi']);
     
-    $query = "INSERT INTO penyakit (kode_penyakit, nama_penyakit, deskripsi, solusi) 
-              VALUES ('$kode', '$nama', '$deskripsi', '$solusi')";
-    if (mysqli_query($conn, $query)) {
+    // Validasi format kode penyakit (contoh: P01)
+    if (!preg_match('/^P\d{2}$/', $kode)) {
+        $_SESSION['flash_message'] = [
+            'type' => 'danger',
+            'message' => 'Format kode penyakit harus P diikuti 2 angka (contoh: P01)'
+        ];
+        header('Location: penyakit.php');
+        exit();
+    }
+    
+    $stmt = $conn->prepare("INSERT INTO penyakit (kode_penyakit, nama_penyakit, deskripsi, solusi) VALUES (?, ?, ?, ?)");
+    $stmt->bind_param("ssss", $kode, $nama, $deskripsi, $solusi);
+    
+    if ($stmt->execute()) {
         $_SESSION['flash_message'] = [
             'type' => 'success',
             'message' => 'Penyakit berhasil ditambahkan'
@@ -31,9 +50,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tambah'])) {
     } else {
         $_SESSION['flash_message'] = [
             'type' => 'danger',
-            'message' => 'Gagal menambahkan penyakit: ' . mysqli_error($conn)
+            'message' => 'Gagal menambahkan penyakit: ' . $stmt->error
         ];
     }
+    $stmt->close();
     header('Location: penyakit.php');
     exit();
 }
@@ -41,10 +61,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tambah'])) {
 // Hapus penyakit
 if (isset($_GET['hapus'])) {
     $id = (int)$_GET['hapus'];
+    
     // Cek apakah penyakit digunakan di aturan
-    $check_query = "SELECT COUNT(*) as total FROM aturan WHERE penyakit_id = $id";
-    $check_result = mysqli_query($conn, $check_query);
-    $check_data = mysqli_fetch_assoc($check_result);
+    $check_query = "SELECT COUNT(*) as total FROM aturan WHERE penyakit_id = ?";
+    $stmt = $conn->prepare($check_query);
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $check_result = $stmt->get_result();
+    $check_data = $check_result->fetch_assoc();
+    $stmt->close();
     
     if ($check_data['total'] > 0) {
         $_SESSION['flash_message'] = [
@@ -52,8 +77,10 @@ if (isset($_GET['hapus'])) {
             'message' => 'Tidak dapat menghapus karena penyakit digunakan dalam aturan'
         ];
     } else {
-        $query = "DELETE FROM penyakit WHERE id = $id";
-        if (mysqli_query($conn, $query)) {
+        $stmt = $conn->prepare("DELETE FROM penyakit WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        
+        if ($stmt->execute()) {
             $_SESSION['flash_message'] = [
                 'type' => 'success',
                 'message' => 'Penyakit berhasil dihapus'
@@ -61,28 +88,41 @@ if (isset($_GET['hapus'])) {
         } else {
             $_SESSION['flash_message'] = [
                 'type' => 'danger',
-                'message' => 'Gagal menghapus penyakit: ' . mysqli_error($conn)
+                'message' => 'Gagal menghapus penyakit: ' . $stmt->error
             ];
         }
+        $stmt->close();
     }
     header('Location: penyakit.php');
     exit();
 }
 
-// Ambil semua penyakit dengan pagination
+// Konfigurasi pagination
 $per_page = 5;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$page = max(1, $page); // Pastikan tidak kurang dari 1
 $start = ($page > 1) ? ($page * $per_page) - $per_page : 0;
 
-// Hitung total data
-$total_query = "SELECT COUNT(*) as total FROM penyakit";
+// Pencarian penyakit
+$search = isset($_GET['search']) ? trim($_GET['search']) : '';
+$search_condition = '';
+$search_param = '';
+
+if (!empty($search)) {
+    $search = mysqli_real_escape_string($conn, $search);
+    $search_condition = " WHERE nama_penyakit LIKE '%$search%' OR kode_penyakit LIKE '%$search%'";
+    $search_param = '&search=' . urlencode($search);
+}
+
+// Hitung total data dengan kondisi pencarian
+$total_query = "SELECT COUNT(*) as total FROM penyakit" . $search_condition;
 $total_result = mysqli_query($conn, $total_query);
 $total_data = mysqli_fetch_assoc($total_result);
 $total = $total_data['total'];
 $pages = ceil($total / $per_page);
 
-// Query data dengan pagination
-$query = "SELECT * FROM penyakit ORDER BY kode_penyakit LIMIT $start, $per_page";
+// Query data dengan pagination dan pencarian
+$query = "SELECT * FROM penyakit" . $search_condition . " ORDER BY kode_penyakit LIMIT $start, $per_page";
 $result = mysqli_query($conn, $query);
 ?>
 
@@ -115,7 +155,9 @@ $result = mysqli_query($conn, $query);
                             <div class="row g-3">
                                 <div class="col-md-2">
                                     <label class="form-label">Kode Penyakit</label>
-                                    <input type="text" name="kode" class="form-control" placeholder="P01" required>
+                                    <input type="text" name="kode" class="form-control" placeholder="P01" required
+                                           pattern="P\d{2}" title="Format: P diikuti 2 angka (contoh: P01)">
+                                    <small class="text-muted">Format: P diikuti 2 angka (contoh: P01)</small>
                                 </div>
                                 <div class="col-md-10">
                                     <label class="form-label">Nama Penyakit</label>
@@ -150,15 +192,18 @@ $result = mysqli_query($conn, $query);
                         <h5 class="mb-0">
                             <i class="fas fa-list me-2"></i> Daftar Penyakit
                         </h5>
-                        <div class="d-flex">
-                            <form class="d-flex me-2" method="get" action="">
-                                <input type="text" name="search" class="form-control form-control-sm" 
-                                       placeholder="Cari penyakit..." value="<?= isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '' ?>">
-                                <button type="submit" class="btn btn-sm btn-outline-primary ms-2">
-                                    <i class="fas fa-search"></i>
-                                </button>
-                            </form>
-                        </div>
+                        <form class="d-flex" method="get" action="">
+                            <input type="text" name="search" class="form-control form-control-sm" 
+                                   placeholder="Cari penyakit..." value="<?= htmlspecialchars($search) ?>">
+                            <button type="submit" class="btn btn-sm btn-outline-primary ms-2">
+                                <i class="fas fa-search"></i>
+                            </button>
+                            <?php if (!empty($search)): ?>
+                                <a href="penyakit.php" class="btn btn-sm btn-outline-danger ms-2">
+                                    <i class="fas fa-times"></i> Reset
+                                </a>
+                            <?php endif; ?>
+                        </form>
                     </div>
                 </div>
                 <div class="card-body">
@@ -171,7 +216,7 @@ $result = mysqli_query($conn, $query);
                                     <th>Nama Penyakit</th>
                                     <th>Deskripsi</th>
                                     <th>Solusi</th>
-                                    <th width="150" class="text-center">Aksi</th>
+                                    <th width="180" class="text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -182,10 +227,18 @@ $result = mysqli_query($conn, $query);
                                     </td>
                                     <td><?= htmlspecialchars($row['nama_penyakit']) ?></td>
                                     <td>
-                                        <small class="text-muted"><?= substr(htmlspecialchars($row['deskripsi']), 0, 50) ?>...</small>
+                                        <div class="text-truncate" style="max-width: 200px;" 
+                                             data-bs-toggle="tooltip" data-bs-placement="top" 
+                                             title="<?= htmlspecialchars($row['deskripsi']) ?>">
+                                            <?= htmlspecialchars(substr($row['deskripsi'], 0, 50)) ?>...
+                                        </div>
                                     </td>
                                     <td>
-                                        <small class="text-muted"><?= substr(htmlspecialchars($row['solusi']), 0, 50) ?>...</small>
+                                        <div class="text-truncate" style="max-width: 200px;" 
+                                             data-bs-toggle="tooltip" data-bs-placement="top" 
+                                             title="<?= htmlspecialchars($row['solusi']) ?>">
+                                            <?= htmlspecialchars(substr($row['solusi'], 0, 50)) ?>...
+                                        </div>
                                     </td>
                                     <td class="text-center">
                                         <div class="btn-group btn-group-sm" role="group">
@@ -215,19 +268,19 @@ $result = mysqli_query($conn, $query);
                     <nav aria-label="Page navigation">
                         <ul class="pagination justify-content-center mt-4">
                             <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
-                                <a class="page-link" href="?page=<?= $page-1 ?>">
+                                <a class="page-link" href="?page=<?= $page-1 ?><?= $search_param ?>">
                                     <i class="fas fa-chevron-left"></i>
                                 </a>
                             </li>
                             
                             <?php for($i = 1; $i <= $pages; $i++): ?>
                                 <li class="page-item <?= ($page == $i) ? 'active' : '' ?>">
-                                    <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
+                                    <a class="page-link" href="?page=<?= $i ?><?= $search_param ?>"><?= $i ?></a>
                                 </li>
                             <?php endfor; ?>
                             
                             <li class="page-item <?= ($page >= $pages) ? 'disabled' : '' ?>">
-                                <a class="page-link" href="?page=<?= $page+1 ?>">
+                                <a class="page-link" href="?page=<?= $page+1 ?><?= $search_param ?>">
                                     <i class="fas fa-chevron-right"></i>
                                 </a>
                             </li>
@@ -240,6 +293,11 @@ $result = mysqli_query($conn, $query);
                         </div>
                         <h5>Tidak ada data penyakit</h5>
                         <p class="text-muted">Silakan tambahkan penyakit baru menggunakan form di atas</p>
+                        <?php if (!empty($search)): ?>
+                            <a href="penyakit.php" class="btn btn-primary mt-3">
+                                <i class="fas fa-arrow-left me-1"></i> Kembali ke semua penyakit
+                            </a>
+                        <?php endif; ?>
                     </div>
                     <?php endif; ?>
                 </div>
@@ -248,6 +306,17 @@ $result = mysqli_query($conn, $query);
     </div>
 </div>
 
+<script>
+// Aktifkan tooltip
+document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+</script>
+
 <?php 
 require_once(__DIR__ . '/layout/footer_layout.php'); 
+ob_end_flush(); // Akhir output buffering
 ?>
