@@ -61,9 +61,6 @@ if ($_SESSION['role'] !== 'admin' && $_SESSION['role'] !== 'pakar') {
                             <span class="ms-2"><?= htmlspecialchars($_SESSION['nama'] ?? 'User') ?></span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="<?= BASE_PATH ?>admin/profile.php"><i class="fas fa-user me-2"></i> Profile</a></li>
-                            <li><a class="dropdown-item" href="<?= BASE_PATH ?>admin/settings.php"><i class="fas fa-cog me-2"></i> Settings</a></li>
-                            <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="<?= BASE_PATH ?>logout.php"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
                         </ul>
                     </li>
@@ -107,13 +104,11 @@ if ($_SESSION['role'] !== 'admin' && $_SESSION['role'] !== 'pakar') {
                 </a>
             </li>
             <?php endif; ?>
-            <?php if ($_SESSION['role'] === 'pakar') : ?>
             <li class="nav-item">
                 <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'riwayat.php' ? 'active' : '' ?>" href="<?= BASE_PATH ?>admin/riwayat.php">
                     <i class="fas fa-history"></i> Riwayat Diagnosa
                 </a>
             </li>
-            <?php endif; ?>
             <li class="nav-item">
                 <a class="nav-link" href="<?= BASE_PATH ?>">
                     <i class="fas fa-external-link-alt"></i> Kembali ke Website
