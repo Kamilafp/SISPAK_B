@@ -3,12 +3,15 @@ ob_start();
 session_start();
 require_once(__DIR__ . '/../../includes/functions.php');
 
+// Define base path
+define('BASE_PATH', '/SISPAK_B/');
+
 if (!isLoggedIn()) {
-    header('Location: /SISPAK_B/login.php');
+    header('Location: ' . BASE_PATH . 'login.php');
     exit();
 }
 if ($_SESSION['role'] !== 'admin' && $_SESSION['role'] !== 'pakar') {
-    header('Location: /SISPAK_B/dashboard.php');
+    header('Location: ' . BASE_PATH . 'dashboard.php');
     exit();
 }
 
@@ -84,7 +87,7 @@ if ($_SESSION['role'] !== 'admin' && $_SESSION['role'] !== 'pakar') {
             <button class="navbar-toggler me-2" type="button" id="sidebarToggle">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <a class="navbar-brand" href="#">Admin Panel</a>
+            <a class="navbar-brand" href="<?= BASE_PATH ?>admin/dashboard.php">Admin Panel</a>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item dropdown">
@@ -92,10 +95,10 @@ if ($_SESSION['role'] !== 'admin' && $_SESSION['role'] !== 'pakar') {
                             <i class="fas fa-user-circle me-1"></i> <?= htmlspecialchars($_SESSION['nama'] ?? 'User') ?>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i> Profile</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Settings</a></li>
+                            <li><a class="dropdown-item" href="<?= BASE_PATH ?>admin/profile.php"><i class="fas fa-user me-2"></i> Profile</a></li>
+                            <li><a class="dropdown-item" href="<?= BASE_PATH ?>admin/settings.php"><i class="fas fa-cog me-2"></i> Settings</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="../logout.php"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+                            <li><a class="dropdown-item" href="<?= BASE_PATH ?>logout.php"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -109,45 +112,44 @@ if ($_SESSION['role'] !== 'admin' && $_SESSION['role'] !== 'pakar') {
             <h4 class="text-white">Diagnosa Penyakit</h4>
         </div>
         <ul class="nav flex-column">
-            
             <li class="nav-item">
-                <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'active' : '' ?>" href="dashboard.php">
+                <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'active' : '' ?>" href="<?= BASE_PATH ?>admin/dashboard.php">
                     <i class="fas fa-tachometer-alt"></i> Dashboard
                 </a>
             </li>
             <?php if ($_SESSION['role'] === 'pakar') : ?>
             <li class="nav-item">
-                <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'penyakit.php' ? 'active' : '' ?>" href="penyakit.php">
+                <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'penyakit.php' ? 'active' : '' ?>" href="<?= BASE_PATH ?>admin/penyakit/penyakit.php">
                     <i class="fas fa-disease"></i> Kelola Penyakit
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'gejala.php' ? 'active' : '' ?>" href="gejala.php">
+                <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'gejala.php' ? 'active' : '' ?>" href="<?= BASE_PATH ?>admin/gejala/gejala.php">
                     <i class="fas fa-clipboard-list"></i> Kelola Gejala
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'aturan.php' ? 'active' : '' ?>" href="aturan.php">
+                <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'aturan.php' ? 'active' : '' ?>" href="<?= BASE_PATH ?>admin/aturan/aturan.php">
                     <i class="fas fa-project-diagram"></i> Kelola Aturan
                 </a>
             </li>
             <?php endif; ?>
             <?php if ($_SESSION['role'] === 'admin') : ?>
             <li class="nav-item">
-                <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'pengguna.php' ? 'active' : '' ?>" href="pengguna.php">
+                <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'pengguna.php' ? 'active' : '' ?>" href="<?= BASE_PATH ?>admin/pengguna/pengguna.php">
                     <i class="fas fa-users"></i> Kelola Pengguna
                 </a>
             </li>
             <?php endif; ?>
             <?php if ($_SESSION['role'] === 'pakar') : ?>
             <li class="nav-item">
-                <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'riwayat.php' ? 'active' : '' ?>" href="riwayat.php">
+                <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'riwayat.php' ? 'active' : '' ?>" href="<?= BASE_PATH ?>admin/riwayat.php">
                     <i class="fas fa-history"></i> Riwayat Diagnosa
                 </a>
             </li>
             <?php endif; ?>
             <li class="nav-item mt-3">
-                <a class="nav-link" href="../logout.php">
+                <a class="nav-link" href="<?= BASE_PATH ?>">
                     <i class="fas fa-external-link-alt"></i> Kembali ke Website
                 </a>
             </li>
@@ -163,4 +165,3 @@ if ($_SESSION['role'] !== 'admin' && $_SESSION['role'] !== 'pakar') {
                 echo '<h2 class="mb-4">' . $page_title . '</h2>';
             }
             ?>
-                    

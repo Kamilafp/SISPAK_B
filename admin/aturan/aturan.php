@@ -1,7 +1,7 @@
 <?php
-ob_start(); // Mulai output buffering untuk menghindari header issues
-require_once(__DIR__ . '/../includes/functions.php');
-require_once(__DIR__ . '/layout/header_layout.php');
+ob_start(); // Mulai output buffering
+require_once(__DIR__ . '/../../includes/functions.php');
+require_once(__DIR__ . '/../layout/header_layout.php');
 
 // Cek koneksi database
 if (!$conn) {
@@ -10,7 +10,7 @@ if (!$conn) {
 
 // Cek login dan role admin
 if (!isLoggedIn() || ($_SESSION['role'] ?? '') !== 'pakar') {
-    header('Location: /../../login.php');
+    header('Location: /SISPAK_B/login.php');
     exit();
 }
 
@@ -21,86 +21,80 @@ if (isset($_SESSION['flash_message'])) {
     unset($_SESSION['flash_message']);
 }
 
-// Tambah gejala baru
+// Tambah aturan baru
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tambah'])) {
-    $kode = trim($_POST['kode']);
-    $nama = trim($_POST['nama']);
+    $penyakit_id = (int)$_POST['penyakit_id'];
+    $gejala_id = (int)$_POST['gejala_id'];
     
-    // Validasi format kode gejala (contoh: G01)
-    if (!preg_match('/^G\d{2}$/', $kode)) {
+    // Validasi input
+    if ($penyakit_id <= 0 || $gejala_id <= 0) {
         $_SESSION['flash_message'] = [
             'type' => 'danger',
-            'message' => 'Format kode gejala harus G diikuti 2 angka (contoh: G01)'
+            'message' => 'Penyakit dan gejala harus dipilih'
         ];
-        header('Location: gejala.php');
+        header('Location: aturan.php');
         exit();
     }
     
-    // Gunakan prepared statement
-    $stmt = $conn->prepare("INSERT INTO gejala (kode_gejala, nama_gejala) VALUES (?, ?)");
-    $stmt->bind_param("ss", $kode, $nama);
+    // Cek apakah aturan sudah ada menggunakan prepared statement
+    $check_query = "SELECT * FROM aturan WHERE penyakit_id = ? AND gejala_id = ?";
+    $stmt = $conn->prepare($check_query);
+    $stmt->bind_param("ii", $penyakit_id, $gejala_id);
+    $stmt->execute();
+    $check_result = $stmt->get_result();
     
-    if ($stmt->execute()) {
-        $_SESSION['flash_message'] = [
-            'type' => 'success',
-            'message' => 'Gejala berhasil ditambahkan'
-        ];
+    if ($check_result->num_rows == 0) {
+        $insert_query = "INSERT INTO aturan (penyakit_id, gejala_id) VALUES (?, ?)";
+        $stmt = $conn->prepare($insert_query);
+        $stmt->bind_param("ii", $penyakit_id, $gejala_id);
+        
+        if ($stmt->execute()) {
+            $_SESSION['flash_message'] = [
+                'type' => 'success',
+                'message' => 'Aturan berhasil ditambahkan'
+            ];
+        } else {
+            $_SESSION['flash_message'] = [
+                'type' => 'danger',
+                'message' => 'Gagal menambahkan aturan: ' . $stmt->error
+            ];
+        }
     } else {
         $_SESSION['flash_message'] = [
-            'type' => 'danger',
-            'message' => 'Gagal menambahkan gejala: ' . $stmt->error
+            'type' => 'warning',
+            'message' => 'Aturan sudah ada dalam sistem'
         ];
     }
+    
     $stmt->close();
-    header('Location: gejala.php');
+    header('Location: aturan.php');
     exit();
 }
 
-// Hapus gejala
+// Hapus aturan
 if (isset($_GET['hapus'])) {
     $id = (int)$_GET['hapus'];
     
-    if ($id <= 0) {
-        $_SESSION['flash_message'] = [
-            'type' => 'danger',
-            'message' => 'ID gejala tidak valid'
-        ];
-        header('Location: gejala.php');
-        exit();
-    }
-    
-    // Cek apakah gejala digunakan di aturan
-    $check_query = "SELECT COUNT(*) as total FROM aturan WHERE gejala_id = ?";
-    $stmt = $conn->prepare($check_query);
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-    $check_result = $stmt->get_result();
-    $check_data = $check_result->fetch_assoc();
-    $stmt->close();
-    
-    if ($check_data['total'] > 0) {
-        $_SESSION['flash_message'] = [
-            'type' => 'danger',
-            'message' => 'Tidak dapat menghapus karena gejala digunakan dalam aturan'
-        ];
-    } else {
-        $stmt = $conn->prepare("DELETE FROM gejala WHERE id = ?");
+    if ($id > 0) {
+        $stmt = $conn->prepare("DELETE FROM aturan WHERE id = ?");
         $stmt->bind_param("i", $id);
         
         if ($stmt->execute()) {
             $_SESSION['flash_message'] = [
                 'type' => 'success',
-                'message' => 'Gejala berhasil dihapus'
+                'message' => 'Aturan berhasil dihapus'
             ];
         } else {
             $_SESSION['flash_message'] = [
                 'type' => 'danger',
-                'message' => 'Gagal menghapus gejala: ' . $stmt->error
+                'message' => 'Gagal menghapus aturan: ' . $stmt->error
             ];
         }
+        
         $stmt->close();
     }
-    header('Location: gejala.php');
+    
+    header('Location: aturan.php');
     exit();
 }
 
@@ -110,27 +104,47 @@ $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $page = max(1, $page); // Pastikan tidak kurang dari 1
 $start = ($page > 1) ? ($page * $per_page) - $per_page : 0;
 
-// Pencarian gejala
+// Pencarian aturan
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 $search_condition = '';
 $search_param = '';
 
 if (!empty($search)) {
     $search = mysqli_real_escape_string($conn, $search);
-    $search_condition = " WHERE nama_gejala LIKE '%$search%' OR kode_gejala LIKE '%$search%'";
+    $search_condition = " WHERE p.nama_penyakit LIKE '%$search%' 
+                          OR p.kode_penyakit LIKE '%$search%'
+                          OR g.nama_gejala LIKE '%$search%'
+                          OR g.kode_gejala LIKE '%$search%'";
     $search_param = '&search=' . urlencode($search);
 }
 
 // Hitung total data dengan kondisi pencarian
-$total_query = "SELECT COUNT(*) as total FROM gejala" . $search_condition;
+$total_query = "SELECT COUNT(*) as total 
+                FROM aturan a
+                JOIN penyakit p ON a.penyakit_id = p.id
+                JOIN gejala g ON a.gejala_id = g.id" . $search_condition;
 $total_result = mysqli_query($conn, $total_query);
 $total_data = mysqli_fetch_assoc($total_result);
 $total = $total_data['total'];
 $pages = ceil($total / $per_page);
 
 // Query data dengan pagination dan pencarian
-$query = "SELECT * FROM gejala" . $search_condition . " ORDER BY kode_gejala LIMIT $start, $per_page";
+$query = "SELECT a.id, p.kode_penyakit, p.nama_penyakit, g.kode_gejala, g.nama_gejala 
+          FROM aturan a
+          JOIN penyakit p ON a.penyakit_id = p.id
+          JOIN gejala g ON a.gejala_id = g.id" . 
+          $search_condition . " 
+          ORDER BY p.kode_penyakit, g.kode_gejala
+          LIMIT $start, $per_page";
 $result = mysqli_query($conn, $query);
+
+// Ambil semua penyakit untuk dropdown
+$penyakit_query = "SELECT * FROM penyakit ORDER BY kode_penyakit";
+$penyakit_result = mysqli_query($conn, $penyakit_query);
+
+// Ambil semua gejala untuk dropdown
+$gejala_query = "SELECT * FROM gejala ORDER BY kode_gejala";
+$gejala_result = mysqli_query($conn, $gejala_query);
 ?>
 
 <div class="container-fluid py-4">
@@ -147,7 +161,7 @@ $result = mysqli_query($conn, $query);
             <div class="card mb-4 shadow-sm">
                 <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">
-                        <i class="fas fa-clipboard-list me-2"></i> Manajemen Gejala
+                        <i class="fas fa-project-diagram me-2"></i> Manajemen Aturan
                     </h5>
                     <button class="btn btn-light btn-sm" type="button" data-bs-toggle="collapse" 
                             data-bs-target="#formTambah" aria-expanded="false" aria-controls="formTambah">
@@ -155,24 +169,36 @@ $result = mysqli_query($conn, $query);
                     </button>
                 </div>
                 
-                <!-- Form Tambah Gejala (Collapsible) -->
+                <!-- Form Tambah Aturan (Collapsible) -->
                 <div class="collapse" id="formTambah">
                     <div class="card-body">
                         <form method="post">
                             <div class="row g-3">
-                                <div class="col-md-2">
-                                    <label class="form-label">Kode Gejala</label>
-                                    <input type="text" name="kode" class="form-control" placeholder="G01" required
-                                           pattern="G\d{2}" title="Format: G diikuti 2 angka (contoh: G01)">
-                                    <small class="text-muted">Format: G diikuti 2 angka (contoh: G01)</small>
+                                <div class="col-md-6">
+                                    <label class="form-label">Penyakit</label>
+                                    <select name="penyakit_id" class="form-select" required>
+                                        <option value="">Pilih Penyakit</option>
+                                        <?php while ($penyakit = mysqli_fetch_assoc($penyakit_result)): ?>
+                                        <option value="<?= $penyakit['id'] ?>">
+                                            <?= htmlspecialchars($penyakit['kode_penyakit']) ?> - <?= htmlspecialchars($penyakit['nama_penyakit']) ?>
+                                        </option>
+                                        <?php endwhile; ?>
+                                    </select>
                                 </div>
-                                <div class="col-md-10">
-                                    <label class="form-label">Nama Gejala</label>
-                                    <input type="text" name="nama" class="form-control" required>
+                                <div class="col-md-6">
+                                    <label class="form-label">Gejala</label>
+                                    <select name="gejala_id" class="form-select" required>
+                                        <option value="">Pilih Gejala</option>
+                                        <?php while ($gejala = mysqli_fetch_assoc($gejala_result)): ?>
+                                        <option value="<?= $gejala['id'] ?>">
+                                            <?= htmlspecialchars($gejala['kode_gejala']) ?> - <?= htmlspecialchars($gejala['nama_gejala']) ?>
+                                        </option>
+                                        <?php endwhile; ?>
+                                    </select>
                                 </div>
                                 <div class="col-12 text-end">
                                     <button type="submit" name="tambah" class="btn btn-primary">
-                                        <i class="fas fa-save me-1"></i> Simpan Gejala
+                                        <i class="fas fa-save me-1"></i> Simpan Aturan
                                     </button>
                                 </div>
                             </div>
@@ -189,16 +215,16 @@ $result = mysqli_query($conn, $query);
                 <div class="card-header bg-white">
                     <div class="d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">
-                            <i class="fas fa-list-ul me-2"></i> Daftar Gejala
+                            <i class="fas fa-list-ul me-2"></i> Daftar Aturan
                         </h5>
                         <form class="d-flex" method="get" action="">
                             <input type="text" name="search" class="form-control form-control-sm" 
-                                   placeholder="Cari gejala..." value="<?= htmlspecialchars($search) ?>">
+                                   placeholder="Cari aturan..." value="<?= htmlspecialchars($search) ?>">
                             <button type="submit" class="btn btn-sm btn-outline-primary ms-2">
                                 <i class="fas fa-search"></i>
                             </button>
                             <?php if (!empty($search)): ?>
-                                <a href="gejala.php" class="btn btn-sm btn-outline-danger ms-2">
+                                <a href="aturan.php" class="btn btn-sm btn-outline-danger ms-2">
                                     <i class="fas fa-times"></i> Reset
                                 </a>
                             <?php endif; ?>
@@ -211,31 +237,34 @@ $result = mysqli_query($conn, $query);
                         <table class="table table-hover align-middle">
                             <thead class="table-light">
                                 <tr>
-                                    <th width="100">Kode</th>
-                                    <th>Nama Gejala</th>
-                                    <th width="180" class="text-center">Aksi</th>
+                                    <th width="50">No</th>
+                                    <th>Penyakit</th>
+                                    <th>Gejala</th>
+                                    <th width="120" class="text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php while ($row = mysqli_fetch_assoc($result)): ?>
+                                <?php 
+                                $no = $start + 1;
+                                while ($row = mysqli_fetch_assoc($result)): 
+                                ?>
                                 <tr>
+                                    <td><?= $no++ ?></td>
                                     <td>
-                                        <span class="badge bg-primary"><?= htmlspecialchars($row['kode_gejala']) ?></span>
+                                        <span class="badge bg-primary"><?= htmlspecialchars($row['kode_penyakit']) ?></span>
+                                        <?= htmlspecialchars($row['nama_penyakit']) ?>
                                     </td>
-                                    <td><?= htmlspecialchars($row['nama_gejala']) ?></td>
+                                    <td>
+                                        <span class="badge bg-info"><?= htmlspecialchars($row['kode_gejala']) ?></span>
+                                        <?= htmlspecialchars($row['nama_gejala']) ?>
+                                    </td>
                                     <td class="text-center">
-                                        <div class="btn-group btn-group-sm" role="group">
-                                            <a href="edit_gejala.php?id=<?= $row['id'] ?>" 
-                                               class="btn btn-outline-warning" title="Edit">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <a href="?hapus=<?= $row['id'] ?>" 
-                                               class="btn btn-outline-danger" 
-                                               onclick="return confirm('Yakin ingin menghapus gejala ini?')" 
-                                               title="Hapus">
-                                                <i class="fas fa-trash"></i>
-                                            </a>
-                                        </div>
+                                        <a href="?hapus=<?= $row['id'] ?>" 
+                                           class="btn btn-sm btn-outline-danger" 
+                                           onclick="return confirm('Yakin ingin menghapus aturan ini?')" 
+                                           title="Hapus">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
                                     </td>
                                 </tr>
                                 <?php endwhile; ?>
@@ -270,11 +299,11 @@ $result = mysqli_query($conn, $query);
                         <div class="display-4 text-muted mb-4">
                             <i class="fas fa-inbox"></i>
                         </div>
-                        <h5>Tidak ada data gejala</h5>
-                        <p class="text-muted">Silakan tambahkan gejala baru menggunakan form di atas</p>
+                        <h5>Tidak ada data aturan</h5>
+                        <p class="text-muted">Silakan tambahkan aturan baru menggunakan form di atas</p>
                         <?php if (!empty($search)): ?>
-                            <a href="gejala.php" class="btn btn-primary mt-3">
-                                <i class="fas fa-arrow-left me-1"></i> Kembali ke semua gejala
+                            <a href="aturan.php" class="btn btn-primary mt-3">
+                                <i class="fas fa-arrow-left me-1"></i> Kembali ke semua aturan
                             </a>
                         <?php endif; ?>
                     </div>

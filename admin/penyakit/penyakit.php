@@ -1,8 +1,8 @@
 <?php
 ob_start(); // Mulai output buffering
 $page_title = "Manajemen Penyakit";
-require_once(__DIR__ . '/../includes/functions.php');
-require_once(__DIR__ . '/layout/header_layout.php');
+require_once(__DIR__ . '/../../includes/functions.php');
+require_once(__DIR__ . '/../layout/header_layout.php');
 
 // Cek koneksi database
 if (!$conn) {
