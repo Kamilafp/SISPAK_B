@@ -220,7 +220,7 @@ $result = mysqli_query($conn, $query);
 
     <div class="row" id="penyakit-list">
         <div class="col-12">
-            <div class="card shadow-sm">
+            <div class="card shadowzz-sm">
                 <div class="card-header bg-white">
                     <div class="d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">
