@@ -1,5 +1,6 @@
 <?php
 require_once(__DIR__ . '/../config/database.php');
+define('BASEPATH', '/SISPAK_B/');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -10,7 +11,7 @@ require_once(__DIR__ . '/../config/database.php');
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/style.css">
-    <link rel="icon" type="image" href="../assets/img/favicon.png">
+    <link rel="icon" type="image" href="<?php echo BASEPATH; ?>assets/img/favicon.png">
     <style>
         .navbar {
             background-color: rgba(255, 255, 255, 0.9) !important;
