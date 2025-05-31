@@ -365,6 +365,18 @@ function confirmDelete(id) {
         }
     });
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+    const hash = window.location.hash;
+    if (hash && document.querySelector(hash)) {
+        const element = document.querySelector(hash);
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
+        element.style.backgroundColor = "#d4edda"; // warna hijau muda
+        setTimeout(() => {
+            element.style.backgroundColor = "";
+        }, 2000); // reset warna setelah 2 detik
+    }
+});
 </script>
 
 <?php 
