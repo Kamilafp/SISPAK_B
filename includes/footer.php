@@ -109,7 +109,7 @@
                 <ul class="list-unstyled">
                     <li><a href="/SISPAK_B/index.php"><i class="fas fa-chevron-right mr-2"></i>Home</a></li>
                     <li><a href="/SISPAK_B/konsultasi.php"><i class="fas fa-chevron-right mr-2"></i>Konsultasi</a></li>
-                    <li><a href="#"><i class="fas fa-chevron-right mr-2"></i>Tentang</a></li>
+                    <li><a href="tentang_sistem.php"><i class="fas fa-chevron-right mr-2"></i>Tentang</a></li>
                     <li><a href="#"><i class="fas fa-chevron-right mr-2"></i>Kontak</a></li>
                 </ul>
             </div>
