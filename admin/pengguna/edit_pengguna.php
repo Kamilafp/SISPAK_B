@@ -55,54 +55,24 @@ $stmt->close();
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update'])) {
-    $nama = trim($_POST['nama']);
-    $email = trim($_POST['email']);
-    $password = $_POST['password'];
     $role = $_POST['role'];
     
     // Validasi input
     $errors = [];
     
-    if (empty($nama)) {
-        $errors[] = "Nama harus diisi";
-    }
-    
-    if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $errors[] = "Email tidak valid";
-    }
-    
-    if (!empty($password) && strlen($password) < 6) {
-        $errors[] = "Password minimal 6 karakter";
-    }
-    
     if (!in_array($role, ['admin', 'pakar', 'user'])) {
         $errors[] = "Role tidak valid";
     }
-    
-    // Cek email sudah ada (kecuali untuk email yang sama)
-    $check_email = $conn->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
-    $check_email->bind_param("si", $email, $user_id);
-    $check_email->execute();
-    $check_email->store_result();
-    
-    if ($check_email->num_rows > 0) {
-        $errors[] = "Email sudah digunakan oleh pengguna lain";
-    }
-    $check_email->close();
-    
     if (empty($errors)) {
         // Update data
-        if (!empty($password)) {
-            // Jika password diubah
-            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-            $query = "UPDATE users SET nama = ?, email = ?, password = ?, role = ? WHERE id = ?";
+            $query = "UPDATE users SET role = ? WHERE id = ?";
             $stmt = $conn->prepare($query);
-            $stmt->bind_param("ssssi", $nama, $email, $hashed_password, $role, $user_id);
+            $stmt->bind_param("si", $role, $user_id);
         } else {
             // Jika password tidak diubah
-            $query = "UPDATE users SET nama = ?, email = ?, role = ? WHERE id = ?";
+            $query = "UPDATE users SET role = ? WHERE id = ?";
             $stmt = $conn->prepare($query);
-            $stmt->bind_param("sssi", $nama, $email, $role, $user_id);
+            $stmt->bind_param("si", $role, $user_id);
         }
         
         if ($stmt->execute()) {
@@ -124,7 +94,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update'])) {
             'message' => implode("<br>", $errors)
         ];
     }
-}
 ?>
 
 <div class="container-fluid py-4">
@@ -159,18 +128,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update'])) {
                             <div class="col-md-6">
                                 <label class="form-label">Nama Lengkap</label>
                                 <input type="text" name="nama" class="form-control" 
-                                       value="<?= htmlspecialchars($user['nama']) ?>" required>
+                                       value="<?= htmlspecialchars($user['nama']) ?>" disabled>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Email</label>
                                 <input type="email" name="email" class="form-control" 
-                                       value="<?= htmlspecialchars($user['email']) ?>" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Password Baru (Kosongkan jika tidak diubah)</label>
-                                <input type="password" name="password" class="form-control" 
-                                       placeholder="Masukkan password baru" minlength="6">
-                                <small class="text-muted">Minimal 6 karakter</small>
+                                       value="<?= htmlspecialchars($user['email']) ?>" disabled>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Role</label>
