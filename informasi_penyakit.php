@@ -413,6 +413,7 @@ $result = mysqli_query($conn, $query);
                 </ol>
             </div>
             
+
             <div class="cta-section">
                 <p>Butuh diagnosa lebih personal?</p>
                 <div class="cta-buttons">
@@ -423,8 +424,8 @@ $result = mysqli_query($conn, $query);
             
             <!-- Footer-->
             <div class="footer-nav">
-                <a href="index.php">Kembali ke Beranda</a>
-                <a href="#">Pelajari Tentang Sistem</a>
+                <a href="index.php">Kembali ke Website</a>
+                <a href="tentang_sistem.php">Pelajari Tentang Sistem</a>
             </div>
             
             <!-- Disclaimer -->

@@ -62,8 +62,7 @@ $riwayat_result = mysqli_query($conn, $riwayat_query);
     }
     
     .btn-primary {
-        background-color: var(--primary-color);
-        border-color: var(--primary-color);
+        background: linear-gradient(135deg, #3498db, #2c3e50);
         border-radius: 50px;
         padding: 10px 25px;
         font-weight: 600;
@@ -104,7 +103,7 @@ $riwayat_result = mysqli_query($conn, $riwayat_query);
     }
     
     .welcome-title {
-        color: var(--primary-color);
+        color: var(--dark-color);
         font-weight: 700;
         margin-bottom: 1rem;
     }
