@@ -130,7 +130,7 @@ mysqli_query($conn, $insert_query);
         <div class="result-header">
             <div class="d-flex align-items-center">
                 <i class="fas fa-clipboard-check fa-2x me-3" style="margin-right: 1rem !important;"></i>
-                <h4 class="mb-0" style="font-size: 1.5rem;">Hasil Diagnosa Penyakit Gigi</h4>
+                <h4 class="mb-0" style="font-size: 1.5rem;">Hasil Diagnosis Penyakit Gigi</h4>
             </div>
         </div>
         

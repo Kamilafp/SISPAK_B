@@ -95,7 +95,7 @@
         <div class="row">
             <div class="col-lg-5 mb-4 mb-lg-0">
                 <h5>Tentang Sistem</h5>
-                <p class="mb-3">Sistem pakar berbasis web untuk membantu diagnosa penyakit gigi menggunakan metode Naïve Bayes.</p>
+                <p class="mb-3">Sistem pakar berbasis web untuk membantu diagnosis penyakit gigi menggunakan metode Naïve Bayes.</p>
                 <div class="social-icons">
                     <a href="#"><i class="fab fa-facebook-f"></i></a>
                     <a href="#"><i class="fab fa-twitter"></i></a>
@@ -146,7 +146,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
-                    &copy; <?= date('Y') ?> Sistem Pakar Diagnosa Penyakit Gigi. All Rights Reserved.
+                    &copy; <?= date('Y') ?> Sistem Pakar Diagnosis Penyakit Gigi. All Rights Reserved.
                 </div>
             </div>
         </div>

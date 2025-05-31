@@ -104,8 +104,8 @@ require_once(__DIR__ . '/includes/header.php');
         <div class="col-md-12">
             <div class="card mb-4">
                 <div class="card-body">
-                    <h2 class="section-title">Apa Itu Sistem Pakar Diagnosa Penyakit Gigi?</h2>
-                    <p>Sistem pakar ini adalah aplikasi berbasis web yang menggunakan metode Naïve Bayes untuk membantu mendiagnosa penyakit gigi berdasarkan gejala yang dialami pengguna. Sistem ini dirancang untuk memberikan kemudahan dalam mengidentifikasi potensi masalah gigi secara mandiri sebelum berkonsultasi dengan dokter.</p>
+                    <h2 class="section-title">Apa Itu Sistem Pakar Diagnosis Penyakit Gigi?</h2>
+                    <p>Sistem pakar ini adalah aplikasi berbasis web yang menggunakan metode Naïve Bayes untuk membantu mendiagnosis penyakit gigi berdasarkan gejala yang dialami pengguna. Sistem ini dirancang untuk memberikan kemudahan dalam mengidentifikasi potensi masalah gigi secara mandiri sebelum berkonsultasi dengan dokter.</p>
                 </div>
             </div>
         </div>
@@ -136,8 +136,8 @@ require_once(__DIR__ . '/includes/header.php');
                     <div class="how-it-works-step">
                         <div class="step-number">3</div>
                         <div>
-                            <h5>Hasil Diagnosa</h5>
-                            <p>Sistem menampilkan hasil diagnosa beserta persentase kemungkinan dan saran penanganan.</p>
+                            <h5>Hasil Diagnosis</h5>
+                            <p>Sistem menampilkan hasil diagnosis beserta persentase kemungkinan dan saran penanganan.</p>
                         </div>
                     </div>
                 </div>
@@ -179,7 +179,7 @@ require_once(__DIR__ . '/includes/header.php');
                                     <div class="feature-icon">
                                         <i class="fas fa-clock"></i>
                                     </div>
-                                    <h5>Diagnosa Cepat</h5>
+                                    <h5>Diagnosis Cepat</h5>
                                     <p>Mendapatkan analisis kondisi gigi dalam hitungan menit tanpa perlu antri.</p>
                                 </div>
                             </div>
@@ -216,7 +216,7 @@ require_once(__DIR__ . '/includes/header.php');
     
     <div class="row mt-4">
         <div class="col-md-12 text-center">
-            <a href="konsultasi.php" class="btn btn-primary btn-lg">Mulai Diagnosa Sekarang</a>
+            <a href="konsultasi.php" class="btn btn-primary btn-lg">Mulai Diagnosis Sekarang</a>
         </div>
     </div>
 </div>

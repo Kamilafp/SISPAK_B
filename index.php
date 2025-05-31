@@ -158,8 +158,8 @@ require_once(__DIR__ . '/includes/header.php');
 <div class="container mt-4">
     <!-- Hero Section -->
     <div class="hero-section text-center">
-        <h1 class="display-4">Sistem Pakar Diagnosa Penyakit Gigi</h1>
-        <p class="lead">Diagnosa mandiri penyakit gigi dengan metode Naïve Bayes yang akurat</p>
+        <h1 class="display-4">Sistem Pakar Diagnosis Penyakit Gigi</h1>
+        <p class="lead">Diagnosis mandiri penyakit gigi dengan metode Naïve Bayes yang akurat</p>
         <div class="divider"></div>
         <p class="mb-4">Mulai perjalanan kesehatan gigi Anda sekarang</p>
         <div class="mt-4">
@@ -177,9 +177,9 @@ require_once(__DIR__ . '/includes/header.php');
                     <div class="card-icon">
                         <i class="fas fa-stethoscope"></i>
                     </div>
-                    <h5 class="card-title">Diagnosa Mandiri</h5>
+                    <h5 class="card-title">Diagnosis Mandiri</h5>
                     <p class="card-text">Identifikasi potensi masalah gigi Anda melalui serangkaian pertanyaan gejala yang sederhana.</p>
-                    <a href="login.php" class="btn btn-outline-primary">Mulai Diagnosa</a>
+                    <a href="login.php" class="btn btn-outline-primary">Mulai Diagnosis</a>
                 </div>
             </div>
         </div>

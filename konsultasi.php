@@ -108,7 +108,7 @@ $gejala_result = mysqli_query($conn, $gejala_query);
 <div class="container mt-4">
     <div class="consultation-hero text-center">
         <h2 style="font-weight: 700;">Konsultasi Penyakit Gigi</h2>
-        <p class="lead">Pilih gejala yang Anda alami untuk mendapatkan diagnosa</p>
+        <p class="lead">Pilih gejala yang Anda alami untuk mendapatkan diagnosis</p>
     </div>
     
     <form action="hasil_diagnosa.php" method="post">
@@ -135,7 +135,7 @@ $gejala_result = mysqli_query($conn, $gejala_query);
             </div>
             <div class="card-footer">
                 <button type="submit" class="btn btn-diagnosa">
-                    <i class="fas fa-stethoscope me-2"></i> Diagnosa Sekarang
+                    <i class="fas fa-stethoscope me-2"></i> Diagnosis Sekarang
                 </button>
             </div>
         </div>

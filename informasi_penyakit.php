@@ -415,9 +415,9 @@ $result = mysqli_query($conn, $query);
             
 
             <div class="cta-section">
-                <p>Butuh diagnosa lebih personal?</p>
+                <p>Butuh diagnosis lebih personal?</p>
                 <div class="cta-buttons">
-                    <a href="konsultasi.php">Coba Diagnosa Mandiri</a>
+                    <a href="konsultasi.php">Coba Diagnosis Mandiri</a>
                     <a href="https://www.google.com/search?q=dokter+gigi+terdekat" target="_blank">Konsultasi dengan Dokter Gigi</a>
                 </div>
             </div>

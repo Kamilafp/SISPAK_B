@@ -119,8 +119,8 @@ $riwayat_result = mysqli_query($conn, $riwayat_query);
         <div class="col-md-12">
             <div class="welcome-card">
                 <h2 class="welcome-title">Selamat datang, <?= $_SESSION['nama'] ?>!</h2>
-                <p class="welcome-text">Sistem pakar ini akan membantu Anda mendiagnosa penyakit gigi berdasarkan gejala yang Anda alami.</p>
-                <a href="konsultasi.php" class="btn btn-primary">Mulai Diagnosa Sekarang</a>
+                <p class="welcome-text">Sistem pakar ini akan membantu Anda mendiagnosis penyakit gigi berdasarkan gejala yang Anda alami.</p>
+                <a href="konsultasi.php" class="btn btn-primary">Mulai Diagnosis Sekarang</a>
             </div>
         </div>
     </div>
@@ -129,7 +129,7 @@ $riwayat_result = mysqli_query($conn, $riwayat_query);
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header text-white" style="background-color: var(--primary-color);">
-                    <h4>Riwayat Diagnosa Terakhir</h4>
+                    <h4>Riwayat Diagnosis Terakhir</h4>
                 </div>
                 <div class="card-body">
                     <?php if (mysqli_num_rows($riwayat_result) > 0): ?>
@@ -156,7 +156,7 @@ $riwayat_result = mysqli_query($conn, $riwayat_query);
                             </table>
                         </div>
                     <?php else: ?>
-                        <p>Anda belum melakukan diagnosa.</p>
+                        <p>Anda belum melakukan diagnosis.</p>
                     <?php endif; ?>
                 </div>
             </div>
@@ -169,7 +169,7 @@ $riwayat_result = mysqli_query($conn, $riwayat_query);
                 </div>
                 <div class="card-body">
                     <div class="list-group">
-                        <a href="konsultasi.php" class="list-group-item list-group-item-action">Diagnosa Penyakit</a>
+                        <a href="konsultasi.php" class="list-group-item list-group-item-action">Diagnosis Penyakit</a>
                         <a href="riwayat.php" class="list-group-item list-group-item-action">Lihat Riwayat Lengkap</a>
                         <a href="informasi_penyakit.php" class="list-group-item list-group-item-action">Informasi Penyakit Gigi</a>
                         <a href="logout.php" class="list-group-item list-group-item-action text-danger">Logout</a>
