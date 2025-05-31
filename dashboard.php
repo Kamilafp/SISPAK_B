@@ -3,7 +3,6 @@ session_start();
 require_once(__DIR__ . '/includes/functions.php');
 require_once(__DIR__ . '/includes/header.php');
 
-
 if (!isLoggedIn()) {
     header('Location: login.php');
     exit();
@@ -20,23 +19,117 @@ $riwayat_query = "SELECT r.*, p.nama_penyakit
 $riwayat_result = mysqli_query($conn, $riwayat_query);
 ?>
 
-<div class="container mt-5">
+<style>
+    :root {
+        --primary-color: #3498db;
+        --secondary-color: #2980b9;
+        --accent-color: #e74c3c;
+        --light-color: #f8f9fa;
+        --dark-color: #343a40;
+        --gradient-start: #3498db;
+        --gradient-end: #2c3e50;
+    }
+    
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f5f7fa;
+    }
+    
+    .hero-section {
+        background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+        color: white;
+        padding: 3rem 0;
+        border-radius: 0 0 20px 20px;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 6px 10px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s ease;
+        margin-bottom: 20px;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .card-header {
+        border-radius: 15px 15px 0 0 !important;
+        font-weight: 600;
+    }
+    
+    .btn-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        border-radius: 50px;
+        padding: 10px 25px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+    
+    .btn-primary:hover {
+        background-color: var(--secondary-color);
+        border-color: var(--secondary-color);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .list-group-item {
+        border: none;
+        padding: 15px 20px;
+        margin-bottom: 10px;
+        border-radius: 10px !important;
+        transition: all 0.3s;
+    }
+    
+    .list-group-item:hover {
+        background-color: var(--primary-color);
+        color: white;
+        transform: translateX(5px);
+    }
+    
+    .table th {
+        border-top: none;
+        color: var(--primary-color);
+    }
+    
+    .welcome-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 6px 10px rgba(0, 0, 0, 0.08);
+    }
+    
+    .welcome-title {
+        color: var(--primary-color);
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+    
+    .welcome-text {
+        color: var(--dark-color);
+        margin-bottom: 2rem;
+    }
+</style>
+
+<div class="container mt-4">
     <div class="row">
         <div class="col-md-12">
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h2 class="card-title">Selamat datang, <?= $_SESSION['nama'] ?>!</h2>
-                    <p class="card-text">Sistem pakar ini akan membantu Anda mendiagnosa penyakit gigi berdasarkan gejala yang Anda alami.</p>
-                    <a href="konsultasi.php" class="btn btn-primary">Mulai Diagnosa Sekarang</a>
-                </div>
+            <div class="welcome-card">
+                <h2 class="welcome-title">Selamat datang, <?= $_SESSION['nama'] ?>!</h2>
+                <p class="welcome-text">Sistem pakar ini akan membantu Anda mendiagnosa penyakit gigi berdasarkan gejala yang Anda alami.</p>
+                <a href="konsultasi.php" class="btn btn-primary">Mulai Diagnosa Sekarang</a>
             </div>
         </div>
     </div>
 
-    <div class="row">
+    <div class="row mt-4">
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header bg-info text-white">
+                <div class="card-header text-white" style="background-color: var(--primary-color);">
                     <h4>Riwayat Diagnosa Terakhir</h4>
                 </div>
                 <div class="card-body">
@@ -72,7 +165,7 @@ $riwayat_result = mysqli_query($conn, $riwayat_query);
         
         <div class="col-md-4">
             <div class="card">
-                <div class="card-header bg-warning text-white">
+                <div class="card-header text-white" style="background-color: var(--secondary-color);">
                     <h4>Menu Cepat</h4>
                 </div>
                 <div class="card-body">

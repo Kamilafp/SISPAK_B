@@ -203,7 +203,7 @@ require_once(__DIR__ . '/includes/header.php');
                     </div>
                     <h5 class="card-title">Tentang Sistem</h5>
                     <p class="card-text">Temukan bagaimana sistem pakar ini bekerja dan manfaatnya untuk Anda.</p>
-                    <a href="#" class="btn btn-outline-primary">Baca Selengkapnya</a>
+                    <a href="tentang_sistem.php" class="btn btn-outline-primary">Baca Selengkapnya</a>
                 </div>
             </div>
         </div>
