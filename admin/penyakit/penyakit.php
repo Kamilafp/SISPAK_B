@@ -221,7 +221,7 @@ $result = mysqli_query($conn, $query);
                             </thead>
                             <tbody>
                                 <?php while ($row = mysqli_fetch_assoc($result)): ?>
-                                <tr>
+                                <tr id="penyakit-<?= $row['id']?>">
                                     <td>
                                         <span class="badge bg-primary"><?= htmlspecialchars($row['kode_penyakit']) ?></span>
                                     </td>
@@ -251,10 +251,6 @@ $result = mysqli_query($conn, $query);
                                                onclick="return confirm('Yakin ingin menghapus penyakit ini?')" 
                                                title="Hapus">
                                                 <i class="fas fa-trash"></i>
-                                            </a>
-                                            <a href="edit_aturan.php?penyakit_id=<?= $row['id'] ?>" 
-                                               class="btn btn-outline-info" title="Aturan">
-                                                <i class="fas fa-project-diagram"></i>
                                             </a>
                                         </div>
                                     </td>
@@ -307,16 +303,16 @@ $result = mysqli_query($conn, $query);
 </div>
 
 <script>
-// Aktifkan tooltip
-document.addEventListener('DOMContentLoaded', function() {
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
-    });
+document.addEventListener("DOMContentLoaded", function () {
+    const hash = window.location.hash;
+    if (hash && document.querySelector(hash)) {
+        const element = document.querySelector(hash);
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
 });
 </script>
 
 <?php 
-require_once(__DIR__ . '/layout/footer_layout.php'); 
+require_once(__DIR__ . '/../layout/footer_layout.php'); 
 ob_end_flush(); // Akhir output buffering
 ?>

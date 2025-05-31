@@ -58,7 +58,7 @@ $isPakar = ($_SESSION['role'] ?? '') === 'pakar';
                         </div>
                         <h6 class="card-title">Total Penyakit</h6>
                         <div class="stats-number"><?= $penyakit['total'] ?? 0 ?></div>
-                        <a href="penyakit.php" class="btn btn-light btn-sm mt-2">
+                        <a href="penyakit/penyakit.php" class="btn btn-light btn-sm mt-2">
                             <i class="fas fa-arrow-right me-1"></i>Lihat Detail
                         </a>
                     </div>
@@ -73,7 +73,7 @@ $isPakar = ($_SESSION['role'] ?? '') === 'pakar';
                         </div>
                         <h6 class="card-title">Total Gejala</h6>
                         <div class="stats-number"><?= $gejala['total'] ?? 0 ?></div>
-                        <a href="gejala.php" class="btn btn-light btn-sm mt-2">
+                        <a href="gejala/gejala.php" class="btn btn-light btn-sm mt-2">
                             <i class="fas fa-arrow-right me-1"></i>Lihat Detail
                         </a>
                     </div>
@@ -89,7 +89,7 @@ $isPakar = ($_SESSION['role'] ?? '') === 'pakar';
                     </div>
                     <h6 class="card-title">Total Pengguna</h6>
                     <div class="stats-number"><?= $user['total'] ?? 0 ?></div>
-                    <a href="pengguna.php" class="btn btn-light btn-sm mt-2">
+                    <a href="pengguna/pengguna.php" class="btn btn-light btn-sm mt-2">
                         <i class="fas fa-arrow-right me-1"></i>Lihat Detail
                     </a>
                 </div>
@@ -127,19 +127,19 @@ $isPakar = ($_SESSION['role'] ?? '') === 'pakar';
                 <div class="card-body">
                     <div class="row">
                         <div class="col-lg-4 col-md-6 mb-3">
-                            <a href="penyakit.php?action=add" class="btn btn-outline-primary w-100 py-3">
+                            <a href="penyakit/penyakit.php?action=add" class="btn btn-outline-primary w-100 py-3">
                                 <i class="fas fa-plus-circle fa-2x mb-2"></i><br>
                                 Tambah Penyakit Baru
                             </a>
                         </div>
                         <div class="col-lg-4 col-md-6 mb-3">
-                            <a href="gejala.php?action=add" class="btn btn-outline-success w-100 py-3">
+                            <a href="gejala/gejala.php?action=add" class="btn btn-outline-success w-100 py-3">
                                 <i class="fas fa-plus-circle fa-2x mb-2"></i><br>
                                 Tambah Gejala Baru
                             </a>
                         </div>
                         <div class="col-lg-4 col-md-6 mb-3">
-                            <a href="aturan.php?action=add" class="btn btn-outline-info w-100 py-3">
+                            <a href="aturan/aturan.php?action=add" class="btn btn-outline-info w-100 py-3">
                                 <i class="fas fa-plus-circle fa-2x mb-2"></i><br>
                                 Tambah Aturan Baru
                             </a>
