@@ -9,7 +9,7 @@ if (!$conn) {
 }
 
 // Cek login dan role admin
-if (!isLoggedIn() || ($_SESSION['role'] ?? '') !== 'admin') {
+if (!isLoggedIn() || ($_SESSION['role'] ?? '') !== 'pakar') {
     header('Location: /SISPAK_B/login.php');
     exit();
 }

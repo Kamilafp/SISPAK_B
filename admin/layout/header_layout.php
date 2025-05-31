@@ -3,10 +3,15 @@ ob_start();
 session_start();
 require_once(__DIR__ . '/../../includes/functions.php');
 
-if (!isLoggedIn() || ($_SESSION['role'] ?? '') !== 'admin') {
+if (!isLoggedIn()) {
     header('Location: /SISPAK_B/login.php');
     exit();
 }
+if ($_SESSION['role'] !== 'admin' && $_SESSION['role'] !== 'pakar') {
+    header('Location: /SISPAK_B/dashboard.php');
+    exit();
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -84,7 +89,7 @@ if (!isLoggedIn() || ($_SESSION['role'] ?? '') !== 'admin') {
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-user-circle me-1"></i> Admin
+                            <i class="fas fa-user-circle me-1"></i> <?= htmlspecialchars($_SESSION['nama'] ?? 'User') ?>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                             <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i> Profile</a></li>
@@ -104,12 +109,14 @@ if (!isLoggedIn() || ($_SESSION['role'] ?? '') !== 'admin') {
             <h4 class="text-white">Diagnosa Penyakit</h4>
         </div>
         <ul class="nav flex-column">
+            
             <li class="nav-item">
                 <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'active' : '' ?>" href="dashboard.php">
                     <i class="fas fa-tachometer-alt"></i> Dashboard
                 </a>
             </li>
-            <!-- <li class="nav-item">
+            <?php if ($_SESSION['role'] === 'pakar') : ?>
+            <li class="nav-item">
                 <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'penyakit.php' ? 'active' : '' ?>" href="penyakit.php">
                     <i class="fas fa-disease"></i> Kelola Penyakit
                 </a>
@@ -123,17 +130,22 @@ if (!isLoggedIn() || ($_SESSION['role'] ?? '') !== 'admin') {
                 <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'aturan.php' ? 'active' : '' ?>" href="aturan.php">
                     <i class="fas fa-project-diagram"></i> Kelola Aturan
                 </a>
-            </li> -->
+            </li>
+            <?php endif; ?>
+            <?php if ($_SESSION['role'] === 'admin') : ?>
             <li class="nav-item">
                 <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'pengguna.php' ? 'active' : '' ?>" href="pengguna.php">
                     <i class="fas fa-users"></i> Kelola Pengguna
                 </a>
             </li>
-            <!-- <li class="nav-item">
+            <?php endif; ?>
+            <?php if ($_SESSION['role'] === 'pakar') : ?>
+            <li class="nav-item">
                 <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'riwayat.php' ? 'active' : '' ?>" href="riwayat.php">
                     <i class="fas fa-history"></i> Riwayat Diagnosa
                 </a>
-            </li> -->
+            </li>
+            <?php endif; ?>
             <li class="nav-item mt-3">
                 <a class="nav-link" href="../logout.php">
                     <i class="fas fa-external-link-alt"></i> Kembali ke Website

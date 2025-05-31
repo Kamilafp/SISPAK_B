@@ -10,7 +10,7 @@ if (!$conn) {
 }
 
 // Cek login dan role admin
-if (!isLoggedIn() || ($_SESSION['role'] ?? '') !== 'admin') {
+if (!isLoggedIn() || ($_SESSION['role'] ?? '') !== 'pakar') {
     header('Location: /../../login.php');
     exit();
 }
