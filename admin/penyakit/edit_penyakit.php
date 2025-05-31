@@ -91,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     break;
                 }
             }
-            $per_page = 5; //hrs sm ky yg di penyakit
+            $per_page = 10; //hrs sm ky yg di penyakit
             // hitung halaman berdasarkan posisi
             $page_target = ceil($position / $per_page);
 
@@ -121,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             </div>
 
-            <!-- Form Tambah Penyakit -->
+            <!-- Form Edit Penyakit -->
             <div class="card-body">
                 <form method="post">
                     <div class="row g-3">
@@ -156,17 +156,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 </div>
-
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const hash = window.location.hash;
-    if (hash && document.querySelector(hash)) {
-        const element = document.querySelector(hash);
-        element.scrollIntoView({ behavior: "smooth", block: "center" });
-        element.style.backgroundColor = "#d4edda"; // warna hijau muda
-        setTimeout(() => {
-            element.style.backgroundColor = "";
-        }, 2000); // reset warna setelah 2 detik
-    }
-});
-</script>
