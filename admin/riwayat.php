@@ -136,13 +136,13 @@ $result = mysqli_query($conn, $query);
                                     <td class="text-center">
                                         <div class="btn-group btn-group-sm" role="group">
                                             <a href="riwayat_detail.php?id=<?= $row['id'] ?>" 
-                                               class="btn btn-outline-primary" title="Detail">
+                                            class="btn btn-outline-primary" title="Detail">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <a href="#" class="btn btn-outline-danger" 
-                                               onclick="confirmDelete(<?= $row['id'] ?>)" title="Hapus">
+                                            <button type="button" class="btn btn-outline-danger" 
+                                            onclick="confirmDelete(<?= $row['id'] ?>)" title="Hapus">
                                                 <i class="fas fa-trash"></i>
-                                            </a>
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -202,10 +202,22 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+
 function confirmDelete(id) {
-    if (confirm('Apakah Anda yakin ingin menghapus riwayat ini?')) {
-        window.location.href = 'riwayat_hapus.php?id=' + id;
-    }
+    Swal.fire({
+        title: 'Apakah Anda yakin?',
+        text: "Riwayat diagnosis akan dihapus permanen!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Ya, hapus!',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = 'hapus_riwayat.php?id=' + id;
+        }
+    });
 }
 </script>
 

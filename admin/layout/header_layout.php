@@ -27,77 +27,38 @@ if ($_SESSION['role'] !== 'admin' && $_SESSION['role'] !== 'pakar') {
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom CSS -->
-    <style>
-        body {
-            padding-top: 56px;
-        }
-        .sidebar {
-            height: 100vh;
-            position: fixed;
-            left: 0;
-            width: 250px;
-            background: #343a40;
-            transition: all 0.3s;
-            z-index: 1000;
-        }
-        .sidebar .nav-link {
-            color: rgba(255, 255, 255, 0.75);
-            padding: 0.75rem 1rem;
-            margin-bottom: 0.2rem;
-        }
-        .sidebar .nav-link:hover, .sidebar .nav-link.active {
-            color: #fff;
-            background: rgba(255, 255, 255, 0.1);
-        }
-        .sidebar .nav-link i {
-            margin-right: 10px;
-        }
-        .main-content {
-            margin-left: 250px;
-            padding: 20px;
-            transition: all 0.3s;
-        }
-        .navbar-brand {
-            padding: 0.5rem 1rem;
-        }
-        .card-dashboard {
-            transition: transform 0.2s;
-        }
-        .card-dashboard:hover {
-            transform: translateY(-5px);
-        }
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 0;
-                overflow: hidden;
-            }
-            .sidebar.show {
-                width: 250px;
-            }
-            .main-content {
-                margin-left: 0;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="../assets/css/dashboard.css">
+    <link rel="stylesheet" href="<?= BASE_PATH ?>/assets/css/layout.css">
+    <link rel="icon" type="image/png" href="<?= BASE_PATH ?>assets/img/favicon.png">
+    
 </head>
 <body>
     <!-- Top Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
         <div class="container-fluid">
             <button class="navbar-toggler me-2" type="button" id="sidebarToggle">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <?php if ($_SESSION['role'] === 'admin') : ?>
-                <a class="navbar-brand" href="<?= BASE_PATH ?>admin/dashboard.php">Admin Panel</a>
+                <a class="navbar-brand" href="<?= BASE_PATH ?>admin/dashboard.php">
+                    <i class="fas fa-cogs"></i> Admin Panel
+                </a>
             <?php endif; ?>
             <?php if ($_SESSION['role'] === 'pakar') : ?>
-                <a class="navbar-brand" href="<?= BASE_PATH ?>admin/dashboard.php">Pakar Panel</a>
+                <a class="navbar-brand" href="<?= BASE_PATH ?>admin/dashboard.php">
+                    <i class="fas fa-user-md"></i> Pakar Panel
+                </a>
             <?php endif; ?>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-user-circle me-1"></i> <?= htmlspecialchars($_SESSION['nama'] ?? 'User') ?>
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <?php if (isset($_SESSION['profile_pic']) && !empty($_SESSION['profile_pic'])) : ?>
+                                <img src="<?= BASE_PATH . 'uploads/' . htmlspecialchars($_SESSION['profile_pic']) ?>" class="nav-user-img" alt="Profile">
+                            <?php else : ?>
+                                <i class="fas fa-user-circle me-1" style="font-size: 1.5rem;"></i>
+                            <?php endif; ?>
+                            <span class="ms-2"><?= htmlspecialchars($_SESSION['nama'] ?? 'User') ?></span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                             <li><a class="dropdown-item" href="<?= BASE_PATH ?>admin/profile.php"><i class="fas fa-user me-2"></i> Profile</a></li>
@@ -113,8 +74,8 @@ if ($_SESSION['role'] !== 'admin' && $_SESSION['role'] !== 'pakar') {
 
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
-        <div class="sidebar-header p-3">
-            <h4 class="text-white">Diagnosa Penyakit</h4>
+        <div class="sidebar-header">
+            <h4><i class="fas fa-stethoscope me-2"></i>Sistem Pakar Gigi</h4>
         </div>
         <ul class="nav flex-column">
             <li class="nav-item">
@@ -153,7 +114,7 @@ if ($_SESSION['role'] !== 'admin' && $_SESSION['role'] !== 'pakar') {
                 </a>
             </li>
             <?php endif; ?>
-            <li class="nav-item mt-3">
+            <li class="nav-item">
                 <a class="nav-link" href="<?= BASE_PATH ?>">
                     <i class="fas fa-external-link-alt"></i> Kembali ke Website
                 </a>
@@ -164,9 +125,15 @@ if ($_SESSION['role'] !== 'admin' && $_SESSION['role'] !== 'pakar') {
     <!-- Main Content -->
     <div class="main-content" id="mainContent">
         <div class="container-fluid">
-            <?php 
-            // Content will be inserted here
-            if (isset($page_title)) {
-                echo '<h2 class="mb-4">' . $page_title . '</h2>';
-            }
-            ?>
+            
+            <!-- Page Header -->
+            <div>
+                <?php if (isset($page_title)) : ?>
+                    <h2 class="mb-0 fw-bold">
+                        <i class="fas fa-angle-right me-2"></i><?= $page_title ?>
+                    </h2>
+                <?php endif; ?>
+            </div>
+            <?php if (basename($_SERVER['PHP_SELF']) !== 'dashboard.php') : ?>
+                <hr>
+            <?php endif; ?>

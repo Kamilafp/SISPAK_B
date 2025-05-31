@@ -157,179 +157,214 @@ $query = "SELECT * FROM users" . $search_condition . " ORDER BY nama ASC LIMIT $
 $result = mysqli_query($conn, $query);
 ?>
 
-<div class="container-fluid py-4">
-    <!-- Flash Message -->
-    <?php if (isset($flash_type) && isset($flash_msg)): ?>
-    <div class="alert alert-<?= $flash_type ?> alert-dismissible fade show" role="alert">
-        <?= $flash_msg ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    <?php endif; ?>
-
-    <div class="row">
-        <div class="col-12">
-            <div class="card mb-4 shadow-sm">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        <i class="fas fa-users me-2"></i> Manajemen Pengguna
-                    </h5>
-                    <button class="btn btn-light btn-sm" type="button" data-bs-toggle="collapse" 
-                            data-bs-target="#formTambah" aria-expanded="false" aria-controls="formTambah">
-                        <i class="fas fa-plus me-1"></i> Tambah Baru
-                    </button>
-                </div>
-                
-                <!-- Form Tambah Pengguna (Collapsible) -->
-                <div class="collapse" id="formTambah">
-                    <div class="card-body">
-                        <form method="post">
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label class="form-label">Nama Lengkap</label>
-                                    <input type="text" name="nama" class="form-control" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Email</label>
-                                    <input type="email" name="email" class="form-control" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Password</label>
-                                    <input type="password" name="password" class="form-control" required minlength="6">
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Role</label>
-                                    <select name="role" class="form-select" required>
-                                        <option value="">Pilih Role</option>
-                                        <option value="admin">Admin</option>
-                                        <option value="pakar">Pakar</option>
-                                        <option value="user">User</option>
-                                    </select>
-                                </div>
-                                <div class="col-12 text-end">
-                                    <button type="submit" name="tambah" class="btn btn-primary">
-                                        <i class="fas fa-save me-1"></i> Simpan Pengguna
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?= $page_title ?></title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <!-- Flash Message -->
+        <?php if (isset($flash_type) && isset($flash_msg)): ?>
+        <div class="alert alert-<?= $flash_type ?> alert-dismissible fade show" role="alert">
+            <?= $flash_msg ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-    </div>
-    <div class="card-body">
-        <?php if (isset($_SESSION['flash_message'])): ?>
-            <div class="alert alert-<?= $_SESSION['flash_message']['type'] ?> alert-dismissible fade show" role="alert">
-                <?= $_SESSION['flash_message']['message'] ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            <?php unset($_SESSION['flash_message']); ?>
         <?php endif; ?>
 
-        <?php if (mysqli_num_rows($result) > 0): ?>
-            <div class="table-responsive">
-                <table class="table table-striped table-hover">
-                    <thead class="table-light">
-                        <tr>
-                            <th width="5%">No</th>
-                            <th>Nama</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Tanggal Daftar</th>
-                            <th width="15%">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php 
-                        $no = $start + 1;
-                        while($row = mysqli_fetch_assoc($result)): 
-                        ?>
-                        <tr>
-                            <td><?= $no++ ?></td>
-                            <td><?= htmlspecialchars($row['nama']) ?></td>
-                            <td><?= htmlspecialchars($row['email']) ?></td>
-                            <td>
-                                <?php if($row['role'] == "admin"): ?>
-                                    <span class="badge bg-primary">Admin</span>
-                                <?php elseif($row['role'] == "pakar"): ?>
-                                    <span class="badge bg-primary">Pakar</span>
-                                <?php else: ?>
-                                    <span class="badge bg-primary">User</span>
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <small class="text-muted">
-                                    <?= date('d/m/Y', strtotime($row['created_at'])) ?>
-                                </small>
-                            </td>
-                            <td>
-                                <a href="user_edit.php?id=<?= $row['id'] ?>" 
-                                   class="btn btn-sm btn-outline-primary" title="Edit">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-
-                                <?php if ($row['id'] != $_SESSION['user_id']): ?>
-                                    <a href="?delete=<?= $row['id'] ?>" 
-                                       class="btn btn-sm btn-outline-danger" 
-                                       onclick="return confirm('Apakah Anda yakin ingin menghapus pengguna ini?')" 
-                                       title="Hapus">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
-                                <?php else: ?>
-                                    <button class="btn btn-sm btn-outline-secondary" disabled title="Tidak dapat menghapus akun sendiri">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                        <?php endwhile; ?>
-                    </tbody>
-                </table>
-            </div>
-
-                    <!-- Pagination -->
-                    <nav aria-label="Page navigation">
-                        <ul class="pagination justify-content-center mt-4">
-                            <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
-                                <a class="page-link" href="?page=<?= $page-1 ?><?= $search_param ?>">
-                                    <i class="fas fa-chevron-left"></i>
-                                </a>
-                            </li>
-                            
-                            <?php for($i = 1; $i <= $pages; $i++): ?>
-                                <li class="page-item <?= ($page == $i) ? 'active' : '' ?>">
-                                    <a class="page-link" href="?page=<?= $i ?><?= $search_param ?>"><?= $i ?></a>
-                                </li>
-                            <?php endfor; ?>
-                            
-                            <li class="page-item <?= ($page >= $pages) ? 'disabled' : '' ?>">
-                                <a class="page-link" href="?page=<?= $page+1 ?><?= $search_param ?>">
-                                    <i class="fas fa-chevron-right"></i>
-                                </a>
-                            </li>
-                        </ul>
-                    </nav>
-                    <?php else: ?>
-                    <div class="text-center py-5">
-                        <div class="display-4 text-muted mb-4">
-                            <i class="fas fa-user-slash"></i>
+        <div class="row">
+            <div class="col-12">
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-users me-2"></i> Manajemen Pengguna
+                        </h5>
+                        <button class="btn btn-light btn-sm" type="button" data-bs-toggle="collapse" 
+                                data-bs-target="#formTambah" aria-expanded="false" aria-controls="formTambah">
+                            <i class="fas fa-plus me-1"></i> Tambah Baru
+                        </button>
+                    </div>
+                    
+                    <!-- Form Tambah Pengguna (Collapsible) -->
+                    <div class="collapse" id="formTambah">
+                        <div class="card-body">
+                            <form method="post">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Nama Lengkap</label>
+                                        <input type="text" name="nama" class="form-control" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Email</label>
+                                        <input type="email" name="email" class="form-control" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Password</label>
+                                        <input type="password" name="password" class="form-control" required minlength="6">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Role</label>
+                                        <select name="role" class="form-select" required>
+                                            <option value="">Pilih Role</option>
+                                            <option value="admin">Admin</option>
+                                            <option value="pakar">Pakar</option>
+                                            <option value="user">User</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 text-end">
+                                        <button type="submit" name="tambah" class="btn btn-primary">
+                                            <i class="fas fa-save me-1"></i> Simpan Pengguna
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
-                        <h5>Tidak ada data pengguna</h5>
-                        <p class="text-muted">Silakan tambahkan pengguna baru menggunakan form di atas</p>
-                        <?php if (!empty($search)): ?>
-                            <a href="pengguna.php" class="btn btn-primary mt-3">
-                                <i class="fas fa-arrow-left me-1"></i> Kembali ke semua pengguna
-                            </a>
+                    </div>
+
+                    <!-- Tabel Pengguna -->
+                    <div class="card-body">
+                        <?php if (mysqli_num_rows($result) > 0): ?>
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th width="5%">No</th>
+                                            <th>Nama</th>
+                                            <th>Email</th>
+                                            <th>Role</th>
+                                            <th>Tanggal Daftar</th>
+                                            <th width="15%">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php 
+                                        $no = $start + 1;
+                                        while($row = mysqli_fetch_assoc($result)): 
+                                        ?>
+                                        <tr>
+                                            <td><?= $no++ ?></td>
+                                            <td><?= htmlspecialchars($row['nama']) ?></td>
+                                            <td><?= htmlspecialchars($row['email']) ?></td>
+                                            <td>
+                                                <?php if($row['role'] == "admin"): ?>
+                                                    <span class="badge bg-success">Admin</span>
+                                                <?php elseif($row['role'] == "pakar"): ?>
+                                                    <span class="badge bg-primary">Pakar</span>
+                                                <?php else: ?>
+                                                    <span class="badge bg-secondary">User</span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td>
+                                                <small class="text-muted">
+                                                    <?= date('d/m/Y', strtotime($row['created_at'])) ?>
+                                                </small>
+                                            </td>
+                                            <td>
+                                                <a href="user_edit.php?id=<?= $row['id'] ?>" 
+                                                   class="btn btn-sm btn-outline-primary" title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+
+                                                <?php if ($row['id'] != $_SESSION['user_id']): ?>
+                                                    <a href="?delete=<?= $row['id'] ?>" 
+                                                       class="btn btn-sm btn-outline-danger" 
+                                                       onclick="return confirm('Apakah Anda yakin ingin menghapus pengguna ini?')" 
+                                                       title="Hapus">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                <?php else: ?>
+                                                    <button class="btn btn-sm btn-outline-secondary" disabled title="Tidak dapat menghapus akun sendiri">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                <?php endif; ?>
+                                            </td>
+                                        </tr>
+                                        <?php endwhile; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Pagination -->
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination justify-content-center mt-4">
+                                    <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                                        <a class="page-link" href="?page=<?= $page-1 ?><?= $search_param ?>">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </a>
+                                    </li>
+                                    
+                                    <?php for($i = 1; $i <= $pages; $i++): ?>
+                                        <li class="page-item <?= ($page == $i) ? 'active' : '' ?>">
+                                            <a class="page-link" href="?page=<?= $i ?><?= $search_param ?>"><?= $i ?></a>
+                                        </li>
+                                    <?php endfor; ?>
+                                    
+                                    <li class="page-item <?= ($page >= $pages) ? 'disabled' : '' ?>">
+                                        <a class="page-link" href="?page=<?= $page+1 ?><?= $search_param ?>">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        <?php else: ?>
+                            <div class="text-center py-5">
+                                <div class="display-4 text-muted mb-4">
+                                    <i class="fas fa-user-slash"></i>
+                                </div>
+                                <h5>Tidak ada data pengguna</h5>
+                                <p class="text-muted">Silakan tambahkan pengguna baru menggunakan form di atas</p>
+                                <?php if (!empty($search)): ?>
+                                    <a href="pengguna.php" class="btn btn-primary mt-3">
+                                        <i class="fas fa-arrow-left me-1"></i> Kembali ke semua pengguna
+                                    </a>
+                                <?php endif; ?>
+                            </div>
                         <?php endif; ?>
                     </div>
-                    <?php endif; ?>
                 </div>
             </div>
         </div>
     </div>
-</div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Debugging untuk collapsible
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("Bootstrap JS loaded");
+            
+            const collapseBtn = document.querySelector('[data-bs-target="#formTambah"]');
+            const collapseElement = document.getElementById('formTambah');
+            
+            if (collapseBtn && collapseElement) {
+                console.log("Collapse elements found");
+                
+                collapseBtn.addEventListener('click', function() {
+                    console.log("Collapse button clicked");
+                });
+                
+                // Inisialisasi event untuk collapsible
+                collapseElement.addEventListener('show.bs.collapse', function() {
+                    console.log("Collapse showing");
+                });
+                
+                collapseElement.addEventListener('shown.bs.collapse', function() {
+                    console.log("Collapse shown");
+                });
+            } else {
+                console.error("Collapse elements not found");
+            }
+        });
+    </script>
+</body>
+</html>
 
 <?php 
-require_once(__DIR__ . '/layout/footer_layout.php');
 ob_end_flush(); // Akhir output buffering
 ?>
