@@ -252,10 +252,6 @@ $result = mysqli_query($conn, $query);
                                                title="Hapus">
                                                 <i class="fas fa-trash"></i>
                                             </a>
-                                            <a href="edit_aturan.php?penyakit_id=<?= $row['id'] ?>" 
-                                               class="btn btn-outline-info" title="Aturan">
-                                                <i class="fas fa-project-diagram"></i>
-                                            </a>
                                         </div>
                                     </td>
                                 </tr>
@@ -317,6 +313,6 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <?php 
-require_once(__DIR__ . '/layout/footer_layout.php'); 
+require_once(__DIR__ . '/../layout/footer_layout.php'); 
 ob_end_flush(); // Akhir output buffering
 ?>
