@@ -61,9 +61,9 @@ if ($_SESSION['role'] !== 'admin' && $_SESSION['role'] !== 'pakar') {
                             <span class="ms-2"><?= htmlspecialchars($_SESSION['nama'] ?? 'User') ?></span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="<?= BASE_PATH ?>admin/profile.php"><i class="fas fa-user me-2"></i> Profile</a></li>
+                            <!-- <li><a class="dropdown-item" href="<?= BASE_PATH ?>admin/profile.php"><i class="fas fa-user me-2"></i> Profile</a></li>
                             <li><a class="dropdown-item" href="<?= BASE_PATH ?>admin/settings.php"><i class="fas fa-cog me-2"></i> Settings</a></li>
-                            <li><hr class="dropdown-divider"></li>
+                            <li><hr class="dropdown-divider"></li> -->
                             <li><a class="dropdown-item" href="<?= BASE_PATH ?>logout.php"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
                         </ul>
                     </li>
