@@ -1,6 +1,6 @@
 <?php
 ob_start(); // Mulai output buffering
-$page_title = "Detail Riwayat Diagnosis";
+$page_title = "Detail Diagnosis Pengguna";
 require_once(__DIR__ . '/../includes/functions.php');
 require_once(__DIR__ . '/layout/header_layout.php');
 
@@ -9,241 +9,271 @@ if (!$conn) {
     die("Koneksi database gagal: " . mysqli_connect_error());
 }
 
-// Cek login dan role admin
-if (!isLoggedIn() || ($_SESSION['role'] ?? '') !== 'pakar') {
+// Cek login dan role admin/pakar
+if (!isLoggedIn() || !in_array($_SESSION['role'] ?? '', ['admin','pakar'])) {
     header('Location: /../../login.php');
     exit();
 }
 
-// Ambil ID dari URL
-$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+// ambil parameter user_id dan detail_id dri URL
+$user_id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+$detail_id = isset($_GET['detail']) ? (int) $_GET['detail'] : 0;
 
-if ($id <= 0) {
+if (!$user_id || !$detail_id) {
     $_SESSION['flash_message'] = [
         'type' => 'danger',
-        'message' => 'ID riwayat tidak valid!'
+        'message' => 'Data pengguna tidak ditemukan'
     ];
     header('Location: riwayat.php');
     exit();
 }
 
-// Query untuk mengambil detail riwayat diagnosis
-$query = "SELECT r.*, u.nama as nama_user, u.email, 
-                 p.nama_penyakit, p.kode_penyakit, p.deskripsi, p.solusi
-          FROM riwayat r
-          JOIN users u ON r.user_id = u.id
-          LEFT JOIN penyakit p ON r.penyakit_id = p.id
-          WHERE r.id = ?";
+// ambil data detail riwayat berdasarkan user_id dan detail_id
+$query = "SELECT r.*, p.nama_penyakit, p.deskripsi, p.solusi
+FROM riwayat r
+LEFT JOIN penyakit p ON r.penyakit_id = p.id
+WHERE r.id = ? AND r.user_id = ?";
 
 $stmt = mysqli_prepare($conn, $query);
-mysqli_stmt_bind_param($stmt, "i", $id);
+mysqli_stmt_bind_param($stmt, "ii", $detail_id, $user_id);
 mysqli_stmt_execute($stmt);
-$result = mysqli_stmt_get_result($stmt);
 
-if (mysqli_num_rows($result) == 0) {
+$result = mysqli_stmt_get_result($stmt);
+$detail = mysqli_fetch_assoc($result);
+
+if (!$detail) {
     $_SESSION['flash_message'] = [
         'type' => 'danger',
-        'message' => 'Data riwayat tidak ditemukan!'
+        'message' => 'Data riwayat tidak ditemukan'
     ];
-    header('Location: riwayat.php');
+    header('Location: riwayat_user.php');
     exit();
 }
-
-$data = mysqli_fetch_assoc($result);
-
-// Pisahkan gejala yang dipilih
-$gejala_array = [];
-if (!empty($data['gejala'])) {
-    $temp = explode(',', $data['gejala']);
-    foreach ($temp as $g) {
-        $g = trim($g);
-        if ($g !== '') {
-            $gejala_array[] = $g;
-        }
-    }
-}
 ?>
+<style>
+    :root {
+        --primary-color: #3498db;
+        --secondary-color: #2980b9;
+        --accent-color: #e74c3c;
+        --light-color: #f8f9fa;
+        --dark-color: #343a40;
+        --gradient-start: #3498db;
+        --gradient-end: #2c3e50;
+    }
 
-<div class="container-fluid py-4">
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">
-                            <i class="fas fa-info-circle me-2"></i> Detail Riwayat Diagnosis
-                        </h5>
-                        <a href="riwayat.php" class="btn btn-outline-light btn-sm">
-                            <i class="fas fa-arrow-left me-1"></i> Kembali
-                        </a>
+    .history-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 6px 10px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+
+    .history-header {
+        background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+        color: white;
+        padding: 1.5rem;
+        border-radius: 15px 15px 0 0;
+    }
+
+    .btn-back {
+        background-color: white;
+        color: var(--primary-color);
+        border-radius: 50px;
+        padding: 5px 15px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+    .btn-back:hover {
+        background-color: rgba(255, 255, 255, 0.9);
+        transform: translateY(-2px);
+    }
+
+    .table {
+        border-collapse: separate;
+        border-spacing: 0 10px;
+    }
+
+    .table thead th {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+    }
+
+    .table tbody tr {
+        background-color: white;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s;
+    }
+
+    .table tbody tr:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .table tbody td {
+        vertical-align: middle;
+        border-top: none;
+        padding: 1rem;
+    }
+
+    .btn-detail {
+        background-color: var(--primary-color);
+        color: white;
+        border-radius: 50px;
+        padding: 5px 15px;
+        font-weight: 500;
+        transition: all 0.3s;
+    }
+
+    .btn-detail:hover {
+        background-color: var(--secondary-color);
+        transform: translateY(-2px);
+        color: white;
+    }
+
+    .info-card {
+        border-radius: 10px;
+        border-left: 4px solid var(--primary-color);
+        transition: all 0.3s;
+    }
+
+    .info-card:hover {
+        transform: translateX(5px);
+    }
+
+    .alert-info {
+        background-color: rgba(52, 152, 219, 0.1);
+        border-color: rgba(52, 152, 219, 0.2);
+        color: var(--secondary-color);
+    }
+    .probability-badge {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 1rem; /* Sama dengan ukuran sebelumnya */
+    }
+    .btn-result {
+        border-radius: 50px;
+        padding: 10px 25px;
+        font-weight: 600;
+        transition: all 0.3s;
+        font-size: 1rem; /* Sama dengan ukuran sebelumnya */
+    }
+    
+    .probability-percent {
+        font-weight: 600;
+        color: var(--primary-color);
+    }
+    
+</style>
+
+<div class="container mt-4">
+    <div class="history-card">
+        <div class="history-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="mb-0"><i class="fas fa-file-alt me-2" style="margin-right: 0.5rem !important;"></i> Detail
+                    Konsultasi</h4>
+                <a href="riwayat_user.php?id=<?= $user_id ?>" class="btn btn-back">
+                    <i class="fas fa-arrow-left me-1"></i> Kembali
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="info-card card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title text-dark"><i class="fas fa-info-circle me-2"
+                                    style="margin-right: 0.5rem !important;"></i>Informasi Konsultasi</h5>
+                            <table class="table table-sm table-borderless">
+                                <tr>
+                                    <th width="30%">Tanggal</th>
+                                    <td><?= date('d F Y', strtotime($detail['tanggal'])) ?></td>
+                                </tr>
+                                <tr>
+                                    <th>Penyakit</th>
+                                    <td><?= htmlspecialchars($detail['nama_penyakit'] ?: 'Tidak Terdiagnosis') ?></td>
+                                </tr>
+                            </table>
+                        </div>
                     </div>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <!-- Informasi Pengguna -->
-                        <div class="col-md-6 mb-4">
-                            <div class="card h-100">
-                                <div class="card-header">
-                                    <h6 class="mb-0">
-                                        <i class="fas fa-user me-2"></i> Informasi Pengguna
-                                    </h6>
-                                </div>
-                                <div class="card-body">
-                                    <table class="table table-borderless table-sm">
-                                        <tr>
-                                            <td width="120"><strong>ID Pengguna</strong></td>
-                                            <td>:</td>
-                                            <td><?= htmlspecialchars($data['user_id']) ?></td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>Nama</strong></td>
-                                            <td>:</td>
-                                            <td><?= htmlspecialchars($data['nama_user']) ?></td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>Email</strong></td>
-                                            <td>:</td>
-                                            <td><?= htmlspecialchars($data['email']) ?></td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>Tanggal</strong></td>
-                                            <td>:</td>
-                                            <td>
-                                                <?= date('d F Y', strtotime($data['tanggal'])) ?> 
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
 
-                        <!-- Hasil Diagnosis -->
-                        <div class="col-md-6 mb-4">
-                            <div class="card h-100">
-                                <div class="card-header">
-                                    <h6 class="mb-0">
-                                        <i class="fas fa-diagnosis me-2"></i> Hasil Diagnosis
-                                    </h6>
-                                </div>
-                                <div class="card-body">
-                                    <?php if (!empty($data['penyakit_id']) && !empty($data['nama_penyakit'])): ?>
-                                        <div class="text-center">
-                                            <span class="badge bg-primary fs-6 mb-2">
-                                                <?= htmlspecialchars($data['kode_penyakit']) ?>
-                                            </span>
-                                        </div>
-                                        <h5 class="text-center text-primary mb-3">
-                                            <?= htmlspecialchars($data['nama_penyakit']) ?>
-                                        </h5>
-                                        <table class="table table-borderless table-sm">
-                                            <tr>
-                                                <td width="120"><strong>ID Penyakit</strong></td>
-                                                <td>:</td>
-                                                <td><?= htmlspecialchars($data['penyakit_id']) ?></td>
-                                            </tr>
-                                            <tr>
-                                                <td><strong>Kode Penyakit</strong></td>
-                                                <td>:</td>
-                                                <td><?= htmlspecialchars($data['kode_penyakit']) ?></td>
-                                            </tr>
-                                        </table>
-                                    <?php else: ?>
-                                        <div class="text-center">
-                                            <div class="mb-3">
-                                                <i class="fas fa-times-circle fa-3x text-secondary"></i>
-                                            </div>
-                                            <h5 class="text-secondary">Tidak Terdiagnosis</h5>
-                                            <p class="text-muted">Gejala yang dipilih tidak mengarah pada penyakit tertentu</p>
-                                        </div>
-                                    <?php endif; ?>
-                                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="info-card card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title text-dark"><i class="fas fa-clipboard-list me-2"
+                                    style="margin-right: 0.5rem !important;"></i>Gejala yang Dipilih</h5>
+                            <div class="alert alert-secondary p-3">
+                                <?php
+                                $kode_gejala = explode(',', $detail['gejala']);
+                                // normalisasi kode jadi 3 digit: G01, dst
+                                $kode_gejala = array_map(function($kode) {
+                                    $kode = strtoupper(trim($kode));
+                                    // Jika G1 jadi G01
+                                    if (preg_match('/^G\d$/', $kode)) {
+                                        return 'G0' . substr($kode, 1);
+                                    }
+                                    return $kode;
+                                }, $kode_gejala);
+
+                                $gejala_list = [];
+
+                                if (!empty($kode_gejala)) {
+                                    $placeholders = implode(',', array_fill(0, count($kode_gejala), '?'));
+                                    $query_gejala = "SELECT kode_gejala, nama_gejala FROM gejala WHERE kode_gejala IN ($placeholders)";
+                                    $stmt_gejala = mysqli_prepare($conn, $query_gejala);
+                                    mysqli_stmt_bind_param($stmt_gejala, str_repeat('s', count($kode_gejala)), ...$kode_gejala);
+                                    mysqli_stmt_execute($stmt_gejala);
+                                    $result_gejala = mysqli_stmt_get_result($stmt_gejala);
+
+                                    while ($row = mysqli_fetch_assoc($result_gejala)) {
+                                        $gejala_list[$row['kode_gejala']] = $row['nama_gejala'];
+                                    }
+
+                                    if (!empty($gejala_list)) {
+                                        echo '<ul class="mb-0">';
+                                        foreach ($kode_gejala as $kode) {
+                                            $nama = $gejala_list[$kode] ?? 'Tidak diketahui';
+                                            echo '<li><strong>' . htmlspecialchars($kode) . ' -</strong> ' . htmlspecialchars($nama) . '</li>';
+                                        }
+                                        echo '</ul>';
+                                    } else {
+                                        echo 'Tidak ada data gejala tersimpan';
+                                    }
+                                } else {
+                                    echo 'Tidak ada data gejala tersimpan';
+                                }
+                                ?>
                             </div>
                         </div>
                     </div>
-
-                    <!-- Gejala yang Dipilih -->
-                    <div class="row">
-                        <div class="col-12 mb-4">
-                            <div class="card">
-                                <div class="card-header bg-light">
-                                    <h6 class="mb-0">
-                                        <i class="fas fa-list-ul me-2"></i> Gejala yang Dipilih
-                                    </h6>
-                                </div>
-                                <div class="card-body">
-                                    <?php if (!empty($gejala_array)): ?>
-                                        <div class="d-flex flex-wrap align-items-center gap-2">
-                                            <?php foreach ($gejala_array as $index => $gejala): ?>
-                                                <span class="badge bg-secondary">
-                                                     <?= htmlspecialchars(trim($gejala)) ?>
-                                                </span>
-                                            <?php endforeach; ?>
-                                        </div>
-                                        <div class="mt-3 p-3 bg-light rounded">
-                                            <small class="text-muted">
-                                                <strong>Total gejala:</strong> <?= count($gejala_array) ?> gejala
-                                            </small>
-                                        </div>
-                                    <?php else: ?>
-                                        <p class="text-muted mb-0">Tidak ada gejala yang tercatat</p>
-                                    <?php endif; ?>
-                                </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-4">
+                    <div class="info-card card">
+                        <div class="card-body">
+                            <h5 class="card-title text-dark"><i class="fas fa-book me-2"
+                                    style="margin-right: 0.5rem !important;"></i>Deskripsi Penyakit</h5>
+                            <div class="card-text p-3 bg-light rounded">
+                                <?= nl2br(htmlspecialchars($detail['deskripsi'])) ?>
                             </div>
                         </div>
                     </div>
-
-                    <?php if (!empty($data['penyakit_id']) && !empty($data['nama_penyakit'])): ?>
-                    <!-- Deskripsi Penyakit -->
-                    <div class="row">
-                        <div class="col-md-6 mb-4">
-                            <div class="card h-100">
-                                <div class="card-header bg-primary text-white">
-                                    <h6 class="mb-0">
-                                        <i class="fas fa-file-medical me-2"></i> Deskripsi Penyakit
-                                    </h6>
-                                </div>
-                                <div class="card-body">
-                                    <?php if (!empty($data['deskripsi'])): ?>
-                                        <p class="text-justify"><?= nl2br(htmlspecialchars($data['deskripsi'])) ?></p>
-                                    <?php else: ?>
-                                        <p class="text-muted">Deskripsi penyakit tidak tersedia</p>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Solusi/Pengobatan -->
-                        <div class="col-md-6 mb-4">
-                            <div class="card h-100">
-                                <div class="card-header bg-primary text-white">
-                                    <h6 class="mb-0">
-                                        <i class="fas fa-medkit me-2"></i> Solusi & Pengobatan
-                                    </h6>
-                                </div>
-                                <div class="card-body">
-                                    <?php if (!empty($data['solusi'])): ?>
-                                        <p class="text-justify"><?= nl2br(htmlspecialchars($data['solusi'])) ?></p>
-                                    <?php else: ?>
-                                        <p class="text-muted">Solusi pengobatan tidak tersedia</p>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <?php endif; ?>
-
-                    <!-- Aksi -->
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
-                                <div>
-                                    <button onclick="window.print()" class="btn btn-info me-2">
-                                        <i class="fas fa-print me-1"></i> Cetak
-                                    </button>
-                                    <button onclick="confirmDelete(<?= $data['id'] ?>)" class="btn btn-danger">
-                                        <i class="fas fa-trash me-1"></i> Hapus Riwayat
-                                    </button>
-                                </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="info-card card">
+                        <div class="card-body">
+                            <h5 class="card-title text-dark"><i class="fas fa-lightbulb me-2"
+                                    style="margin-right: 0.5rem !important;"></i>Solusi Penanganan</h5>
+                            <div class="card-text p-3 bg-light rounded">
+                                <?= nl2br(htmlspecialchars($detail['solusi'])) ?>
                             </div>
                         </div>
                     </div>
@@ -252,31 +282,6 @@ if (!empty($data['gejala'])) {
         </div>
     </div>
 </div>
-
-<script>
-function confirmDelete(id) {
-    if (confirm('Apakah Anda yakin ingin menghapus riwayat ini?\n\nData yang dihapus tidak dapat dikembalikan!')) {
-        window.location.href = 'riwayat_hapus.php?id=' + id;
-    }
-}
-
-// Print styling
-window.addEventListener('beforeprint', function() {
-    // Hide buttons when printing
-    document.querySelectorAll('.btn').forEach(btn => {
-        btn.style.display = 'none';
-    });
-    document.querySelector('.breadcrumb').style.display = 'none';
-});
-
-window.addEventListener('afterprint', function() {
-    // Show buttons after printing
-    document.querySelectorAll('.btn').forEach(btn => {
-        btn.style.display = '';
-    });
-    document.querySelector('.breadcrumb').style.display = '';
-});
-</script>
 
 <?php 
 require_once(__DIR__ . '/layout/footer_layout.php'); 
