@@ -199,7 +199,7 @@ $result = mysqli_query($conn, $query);
                                                title="Hapus">
                                                 <i class="fas fa-trash"></i>
                                             </a>
-                                            <a href="edit_aturan.php?penyakit_id=<?= $row['id'] ?>" 
+                                            <a href="edit_penyakit.php?penyakit_id=<?= $row['id'] ?>" 
                                                class="btn btn-outline-info" title="Aturan">
                                                 <i class="fas fa-project-diagram"></i>
                                             </a>
