@@ -248,7 +248,7 @@ $gejala_result = mysqli_query($conn, $gejala_query);
                                 $no = $start + 1;
                                 while ($row = mysqli_fetch_assoc($result)): 
                                 ?>
-                                <tr>
+                                <tr id="aturan-<?= $row['id']?>">
                                     <td><?= $no++ ?></td>
                                     <td>
                                         <span class="badge bg-primary"><?= htmlspecialchars($row['kode_penyakit']) ?></span>
@@ -259,12 +259,18 @@ $gejala_result = mysqli_query($conn, $gejala_query);
                                         <?= htmlspecialchars($row['nama_gejala']) ?>
                                     </td>
                                     <td class="text-center">
-                                        <a href="?hapus=<?= $row['id'] ?>" 
-                                           class="btn btn-sm btn-outline-danger" 
-                                           onclick="return confirm('Yakin ingin menghapus aturan ini?')" 
-                                           title="Hapus">
-                                            <i class="fas fa-trash"></i>
-                                        </a>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="edit_aturan.php?id=<?= $row['id'] ?>" 
+                                               class="btn btn-outline-warning" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="?hapus=<?= $row['id'] ?>" 
+                                               class="btn btn-outline-danger" 
+                                               onclick="return confirm('Yakin ingin menghapus aturan ini?')" 
+                                               title="Hapus">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
                                     </td>
                                 </tr>
                                 <?php endwhile; ?>
@@ -314,7 +320,17 @@ $gejala_result = mysqli_query($conn, $gejala_query);
     </div>
 </div>
 
-<?php 
-require_once(__DIR__ . '/layout/footer_layout.php');
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const hash = window.location.hash;
+    if (hash && document.querySelector(hash)) {
+        const element = document.querySelector(hash);
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+});
+</script>
+
+<?php
+require_once(__DIR__ . '/../layout/footer_layout.php');
 ob_end_flush(); // Akhir output buffering
 ?>

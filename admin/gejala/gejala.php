@@ -8,7 +8,7 @@ if (!$conn) {
     die("Koneksi database gagal: " . mysqli_connect_error());
 }
 
-// Cek login dan role admin
+// Cek login dan role
 if (!isLoggedIn() || ($_SESSION['role'] ?? '') !== 'pakar') {
     header('Location: /../../login.php');
     exit();
@@ -218,7 +218,7 @@ $result = mysqli_query($conn, $query);
                             </thead>
                             <tbody>
                                 <?php while ($row = mysqli_fetch_assoc($result)): ?>
-                                <tr>
+                                <tr id="gejala-<?= $row['id']?>">
                                     <td>
                                         <span class="badge bg-primary"><?= htmlspecialchars($row['kode_gejala']) ?></span>
                                     </td>
@@ -285,7 +285,17 @@ $result = mysqli_query($conn, $query);
     </div>
 </div>
 
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const hash = window.location.hash;
+    if (hash && document.querySelector(hash)) {
+        const element = document.querySelector(hash);
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+});
+</script>
+
 <?php 
-require_once(__DIR__ . '/layout/footer_layout.php');
+require_once(__DIR__ . '/../layout/footer_layout.php');
 ob_end_flush(); // Akhir output buffering
 ?>
