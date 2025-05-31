@@ -87,7 +87,12 @@ if ($_SESSION['role'] !== 'admin' && $_SESSION['role'] !== 'pakar') {
             <button class="navbar-toggler me-2" type="button" id="sidebarToggle">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <a class="navbar-brand" href="<?= BASE_PATH ?>admin/dashboard.php">Admin Panel</a>
+            <?php if ($_SESSION['role'] === 'admin') : ?>
+                <a class="navbar-brand" href="<?= BASE_PATH ?>admin/dashboard.php">Admin Panel</a>
+            <?php endif; ?>
+            <?php if ($_SESSION['role'] === 'pakar') : ?>
+                <a class="navbar-brand" href="<?= BASE_PATH ?>admin/dashboard.php">Pakar Panel</a>
+            <?php endif; ?>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item dropdown">

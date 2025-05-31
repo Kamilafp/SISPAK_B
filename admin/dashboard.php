@@ -80,7 +80,7 @@ $isPakar = ($_SESSION['role'] ?? '') === 'pakar';
                 </div>
             </div>
         <?php endif; ?>
-        
+        <?php if ($isAdmin): ?>
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card stats-card bg-info text-white">
                 <div class="card-body position-relative">
@@ -95,7 +95,7 @@ $isPakar = ($_SESSION['role'] ?? '') === 'pakar';
                 </div>
             </div>
         </div>
-        
+        <?php endif; ?>
         <?php if ($isPakar): ?>
             <div class="col-xl-3 col-md-6 mb-4">
                 <div class="card stats-card bg-warning text-dark">
