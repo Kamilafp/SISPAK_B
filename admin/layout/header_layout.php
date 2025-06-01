@@ -104,14 +104,16 @@ if ($_SESSION['role'] !== 'admin' && $_SESSION['role'] !== 'pakar') {
                 </a>
             </li>
             <?php endif; ?>
+            <?php if ($_SESSION['role'] === 'pakar') : ?>
             <li class="nav-item">
                 <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'riwayat.php' ? 'active' : '' ?>" href="<?= BASE_PATH ?>admin/riwayat.php">
-                    <i class="fas fa-history"></i> Riwayat Diagnosa
+                    <i class="fas fa-history"></i> Riwayat Diagnosis
                 </a>
             </li>
+            <?php endif; ?>
             <li class="nav-item">
-                <a class="nav-link" href="<?= BASE_PATH ?>">
-                    <i class="fas fa-external-link-alt"></i> Kembali ke Website
+                <a class="nav-link" href="<?= BASE_PATH ?>logout.php">
+                    <i class="fas fa-external-link-alt"></i> Kembali ke Website Utama
                 </a>
             </li>
         </ul>

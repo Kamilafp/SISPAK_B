@@ -154,7 +154,7 @@ $isPakar = ($_SESSION['role'] ?? '') === 'pakar';
     <!-- Recent Activity -->
     <div class="row">
         <?php if ($isPakar): ?>
-        <div class="col-lg-8">
+        <div class="col-lg-12">
             <div class="card">
                 <div class="card-header">
                     <h5 class="card-title mb-0">
@@ -214,7 +214,7 @@ $isPakar = ($_SESSION['role'] ?? '') === 'pakar';
         </div>
         <?php endif; ?>
         
-        <div class="<?= $isPakar ? 'col-lg-4' : 'col-lg-12' ?>">
+        <div class="'col-lg-12'">
             <div class="card">
                 <div class="card-header">
                     <h5 class="card-title mb-0">
@@ -222,7 +222,6 @@ $isPakar = ($_SESSION['role'] ?? '') === 'pakar';
                     </h5>
                 </div>
                 <div class="card-body">
-                    <?php if ($isPakar): ?>
                         <div class="mb-3">
                             <div class="d-flex justify-content-between align-items-center">
                                 <span>Data Penyakit</span>
@@ -242,8 +241,8 @@ $isPakar = ($_SESSION['role'] ?? '') === 'pakar';
                                 <div class="progress-bar bg-success" style="width: 85%"></div>
                             </div>
                         </div>
-                    <?php endif; ?>
-                    
+
+                    <?php if ($isAdmin): ?>
                     <div class="mb-3">
                         <div class="d-flex justify-content-between align-items-center">
                             <span>Pengguna Aktif</span>
@@ -253,8 +252,8 @@ $isPakar = ($_SESSION['role'] ?? '') === 'pakar';
                             <div class="progress-bar bg-info" style="width: 65%"></div>
                         </div>
                     </div>
+                    <?php endif; ?>
                     
-                    <?php if ($isPakar): ?>
                         <div class="mb-3">
                             <div class="d-flex justify-content-between align-items-center">
                                 <span>Total Diagnosis</span>
@@ -264,7 +263,6 @@ $isPakar = ($_SESSION['role'] ?? '') === 'pakar';
                                 <div class="progress-bar bg-warning" style="width: 45%"></div>
                             </div>
                         </div>
-                    <?php endif; ?>
                 </div>
             </div>
         </div>
