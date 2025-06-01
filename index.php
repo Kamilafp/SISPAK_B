@@ -161,10 +161,9 @@ require_once(__DIR__ . '/includes/header.php');
         <h1 class="display-4">Sistem Pakar Diagnosis Penyakit Gigi</h1>
         <p class="lead">Diagnosis mandiri penyakit gigi dengan metode Naïve Bayes yang akurat</p>
         <div class="divider"></div>
-        <p class="mb-4">Mulai perjalanan kesehatan gigi Anda sekarang</p>
+        <p class="mb-4">Dapatkan analisis awal kondisi gigi Anda secara cepat</p>
         <div class="mt-4">
-            <a href="register.php" class="btn btn-hero btn-light">Daftar Sekarang</a>
-            <a href="login.php" class="btn btn-hero btn-primary">Masuk</a>
+            <a href="register.php" class="btn btn-hero btn-primary">Daftar Sekarang</a>
         </div>
     </div>
 

@@ -2,7 +2,6 @@
 session_start();
 require_once 'config/database.php';
 require_once(__DIR__ . '/includes/functions.php');
-require_once(__DIR__ . '/includes/header.php');
 
 $error = '';
 
@@ -11,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = mysqli_real_escape_string($conn, $_POST['password']);
 
     $query = "SELECT * FROM users WHERE email = '$email'";
-    $result = mysqli_query($conn, $query);
+    $result = mysqli_query($conn, query: $query);
 
     if (mysqli_num_rows($result) == 1) {
         $user = mysqli_fetch_assoc($result);
@@ -37,6 +36,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Email tidak ditemukan!';
     }
 }
+require_once(__DIR__ . '/includes/header.php');
+
 ?>
 
 <style>

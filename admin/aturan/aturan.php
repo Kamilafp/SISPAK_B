@@ -1,5 +1,6 @@
 <?php
-ob_start(); // Mulai output buffering
+ob_start();
+$page_title = "Manajemen Aturan";
 require_once(__DIR__ . '/../../includes/functions.php');
 require_once(__DIR__ . '/../layout/header_layout.php');
 
@@ -8,9 +9,9 @@ if (!$conn) {
     die("Koneksi database gagal: " . mysqli_connect_error());
 }
 
-// Cek login dan role admin
+// Cek login dan role pakar
 if (!isLoggedIn() || ($_SESSION['role'] ?? '') !== 'pakar') {
-    header('Location: /SISPAK_B/login.php');
+    header('Location: ' . BASE_PATH . 'login.php');
     exit();
 }
 
@@ -36,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tambah'])) {
         exit();
     }
     
-    // Cek apakah aturan sudah ada menggunakan prepared statement
+    // Cek apakah aturan sudah ada
     $check_query = "SELECT * FROM aturan WHERE penyakit_id = ? AND gejala_id = ?";
     $stmt = $conn->prepare($check_query);
     $stmt->bind_param("ii", $penyakit_id, $gejala_id);
@@ -76,13 +77,26 @@ if (isset($_GET['hapus'])) {
     $id = (int)$_GET['hapus'];
     
     if ($id > 0) {
+        // Ambil data aturan untuk pesan konfirmasi
+        $query = "SELECT p.nama_penyakit, g.nama_gejala 
+                  FROM aturan a
+                  JOIN penyakit p ON a.penyakit_id = p.id
+                  JOIN gejala g ON a.gejala_id = g.id
+                  WHERE a.id = ?";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $data = $result->fetch_assoc();
+        $stmt->close();
+        
         $stmt = $conn->prepare("DELETE FROM aturan WHERE id = ?");
         $stmt->bind_param("i", $id);
         
         if ($stmt->execute()) {
             $_SESSION['flash_message'] = [
                 'type' => 'success',
-                'message' => 'Aturan berhasil dihapus'
+                'message' => 'Aturan "' . $data['nama_penyakit'] . ' - ' . $data['nama_gejala'] . '" berhasil dihapus'
             ];
         } else {
             $_SESSION['flash_message'] = [
@@ -94,17 +108,27 @@ if (isset($_GET['hapus'])) {
         $stmt->close();
     }
     
-    header('Location: aturan.php');
+    // Redirect dengan mempertahankan parameter pencarian dan pagination
+    $redirect_url = 'aturan.php';
+    if (isset($_GET['page'])) {
+        $redirect_url .= '?page=' . (int)$_GET['page'];
+    }
+    if (!empty($_GET['search'])) {
+        $redirect_url .= (strpos($redirect_url, '?') === false ? '?' : '&');
+        $redirect_url .= 'search=' . urlencode($_GET['search']);
+    }
+    $redirect_url .= '#aturan-list';
+    
+    header('Location: ' . $redirect_url);
     exit();
 }
 
-// Konfigurasi pagination
+// Konfigurasi pagination dan pencarian
 $per_page = 10;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-$page = max(1, $page); // Pastikan tidak kurang dari 1
+$page = max(1, $page);
 $start = ($page > 1) ? ($page * $per_page) - $per_page : 0;
 
-// Pencarian aturan
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 $search_condition = '';
 $search_param = '';
@@ -118,7 +142,7 @@ if (!empty($search)) {
     $search_param = '&search=' . urlencode($search);
 }
 
-// Hitung total data dengan kondisi pencarian
+// Hitung total data
 $total_query = "SELECT COUNT(*) as total 
                 FROM aturan a
                 JOIN penyakit p ON a.penyakit_id = p.id
@@ -128,7 +152,7 @@ $total_data = mysqli_fetch_assoc($total_result);
 $total = $total_data['total'];
 $pages = ceil($total / $per_page);
 
-// Query data dengan pagination dan pencarian
+// Query data
 $query = "SELECT a.id, p.kode_penyakit, p.nama_penyakit, g.kode_gejala, g.nama_gejala 
           FROM aturan a
           JOIN penyakit p ON a.penyakit_id = p.id
@@ -138,11 +162,9 @@ $query = "SELECT a.id, p.kode_penyakit, p.nama_penyakit, g.kode_gejala, g.nama_g
           LIMIT $start, $per_page";
 $result = mysqli_query($conn, $query);
 
-// Ambil semua penyakit untuk dropdown
+// Data untuk dropdown
 $penyakit_query = "SELECT * FROM penyakit ORDER BY kode_penyakit";
 $penyakit_result = mysqli_query($conn, $penyakit_query);
-
-// Ambil semua gejala untuk dropdown
 $gejala_query = "SELECT * FROM gejala ORDER BY kode_gejala";
 $gejala_result = mysqli_query($conn, $gejala_query);
 ?>
@@ -151,9 +173,20 @@ $gejala_result = mysqli_query($conn, $gejala_query);
     <!-- Flash Message -->
     <?php if (isset($flash_type) && isset($flash_msg)): ?>
     <div class="alert alert-<?= $flash_type ?> alert-dismissible fade show" role="alert">
-        <?= $flash_msg ?>
+        <div class="d-flex align-items-center">
+            <i class="fas <?= ($flash_type == 'success') ? 'fa-check-circle' : 'fa-exclamation-circle' ?> me-2"></i>
+            <div><?= $flash_msg ?></div>
+        </div>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const alert = document.querySelector('.alert');
+        if (alert) {
+            alert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    });
+    </script>
     <?php endif; ?>
 
     <div class="row">
@@ -169,7 +202,7 @@ $gejala_result = mysqli_query($conn, $gejala_query);
                     </button>
                 </div>
                 
-                <!-- Form Tambah Aturan (Collapsible) -->
+                <!-- Form Tambah Aturan -->
                 <div class="collapse" id="formTambah">
                     <div class="card-body">
                         <form method="post">
@@ -209,7 +242,7 @@ $gejala_result = mysqli_query($conn, $gejala_query);
         </div>
     </div>
 
-    <div class="row">
+    <div class="row" id="aturan-list">
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-header bg-white">
@@ -264,12 +297,10 @@ $gejala_result = mysqli_query($conn, $gejala_query);
                                                class="btn btn-outline-warning" title="Edit">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <a href="?hapus=<?= $row['id'] ?>" 
-                                               class="btn btn-outline-danger" 
-                                               onclick="return confirm('Yakin ingin menghapus aturan ini?')" 
-                                               title="Hapus">
+                                            <button type="button" class="btn btn-outline-danger" 
+                                               onclick="confirmDelete(<?= $row['id'] ?>)" title="Hapus">
                                                 <i class="fas fa-trash"></i>
-                                            </a>
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -321,16 +352,49 @@ $gejala_result = mysqli_query($conn, $gejala_query);
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    const hash = window.location.hash;
-    if (hash && document.querySelector(hash)) {
-        const element = document.querySelector(hash);
-        element.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
+// Konfirmasi hapus dengan SweetAlert2
+function confirmDelete(id) {
+    Swal.fire({
+        title: 'Apakah Anda yakin?',
+        text: "Aturan ini akan dihapus permanen!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Ya, hapus!',
+        cancelButtonText: 'Batal',
+        backdrop: `
+            rgba(0,0,0,0.7)
+            url("<?= BASE_PATH ?>assets/images/trash-icon.png")
+            center top
+            no-repeat
+        `
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Redirect dengan mempertahankan parameter pencarian dan pagination
+            let url = 'aturan.php?hapus=' + id;
+            const search = new URLSearchParams(window.location.search).get('search');
+            const page = new URLSearchParams(window.location.search).get('page');
+            
+            if (page) url += '&page=' + page;
+            if (search) url += '&search=' + encodeURIComponent(search);
+            url += '#aturan-list';
+            
+            window.location.href = url;
+        }
+    });
+}
+
+// Aktifkan tooltip
+document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
 });
 </script>
 
 <?php
 require_once(__DIR__ . '/../layout/footer_layout.php');
-ob_end_flush(); // Akhir output buffering
+ob_end_flush();
 ?>

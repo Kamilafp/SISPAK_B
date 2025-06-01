@@ -77,13 +77,23 @@ if (isset($_GET['hapus'])) {
             'message' => 'Tidak dapat menghapus karena penyakit digunakan dalam aturan'
         ];
     } else {
+        // Ambil nama penyakit untuk pesan konfirmasi
+        $nama_query = "SELECT nama_penyakit FROM penyakit WHERE id = ?";
+        $stmt = $conn->prepare($nama_query);
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $nama_result = $stmt->get_result();
+        $nama_data = $nama_result->fetch_assoc();
+        $nama_penyakit = $nama_data['nama_penyakit'] ?? '';
+        $stmt->close();
+        
         $stmt = $conn->prepare("DELETE FROM penyakit WHERE id = ?");
         $stmt->bind_param("i", $id);
         
         if ($stmt->execute()) {
             $_SESSION['flash_message'] = [
                 'type' => 'success',
-                'message' => 'Penyakit berhasil dihapus'
+                'message' => 'Penyakit "'.$nama_penyakit.'" berhasil dihapus'
             ];
         } else {
             $_SESSION['flash_message'] = [
@@ -93,12 +103,24 @@ if (isset($_GET['hapus'])) {
         }
         $stmt->close();
     }
-    header('Location: penyakit.php');
+    
+    // Redirect dengan hash untuk scroll ke posisi semula
+    $redirect_url = 'penyakit.php';
+    if (isset($_GET['page'])) {
+        $redirect_url .= '?page=' . (int)$_GET['page'];
+    }
+    if (!empty($search)) {
+        $redirect_url .= (strpos($redirect_url, '?') === false ? '?' : '&');
+        $redirect_url .= 'search=' . urlencode($search);
+    }
+    $redirect_url .= '#penyakit-list';
+    
+    header('Location: ' . $redirect_url);
     exit();
 }
 
 // Konfigurasi pagination
-$per_page = 5;
+$per_page = 10;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $page = max(1, $page); // Pastikan tidak kurang dari 1
 $start = ($page > 1) ? ($page * $per_page) - $per_page : 0;
@@ -155,9 +177,21 @@ $result = mysqli_query($conn, $query);
                             <div class="row g-3">
                                 <div class="col-md-2">
                                     <label class="form-label">Kode Penyakit</label>
+                                    <?php
+                                    // Ambil kode terakhir dari database
+                                    $last_code = 'P00';
+                                    $kode_query = "SELECT kode_penyakit FROM penyakit ORDER BY kode_penyakit DESC LIMIT 1";
+                                    $kode_result = mysqli_query($conn, $kode_query);
+                                    if ($kode_result && mysqli_num_rows($kode_result) > 0) {
+                                        $kode_row = mysqli_fetch_assoc($kode_result);
+                                        $last_code = $kode_row['kode_penyakit'];
+                                    }
+                                    // Ekstrak angka dan tambah 1
+                                    $next_number = (int)substr($last_code, 1) + 1;
+                                    $next_code = 'P' . str_pad($next_number, 2, '0', STR_PAD_LEFT);
+                                    ?>
                                     <input type="text" name="kode" class="form-control" placeholder="P01" required
-                                           pattern="P\d{2}" title="Format: P diikuti 2 angka (contoh: P01)">
-                                    <small class="text-muted">Format: P diikuti 2 angka (contoh: P01)</small>
+                                           pattern="P\d{2}" title="Format: P diikuti 2 angka (contoh: P01)" value="<?= htmlspecialchars($next_code) ?>" readonly>
                                 </div>
                                 <div class="col-md-10">
                                     <label class="form-label">Nama Penyakit</label>
@@ -184,9 +218,9 @@ $result = mysqli_query($conn, $query);
         </div>
     </div>
 
-    <div class="row">
+    <div class="row" id="penyakit-list">
         <div class="col-12">
-            <div class="card shadow-sm">
+            <div class="card shadowzz-sm">
                 <div class="card-header bg-white">
                     <div class="d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">
@@ -243,15 +277,13 @@ $result = mysqli_query($conn, $query);
                                     <td class="text-center">
                                         <div class="btn-group btn-group-sm" role="group">
                                             <a href="edit_penyakit.php?id=<?= $row['id'] ?>" 
-                                               class="btn btn-outline-warning" title="Edit">
+                                            class="btn btn-outline-warning" title="Edit">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <a href="?hapus=<?= $row['id'] ?>" 
-                                               class="btn btn-outline-danger" 
-                                               onclick="return confirm('Yakin ingin menghapus penyakit ini?')" 
-                                               title="Hapus">
+                                            <button type="button" class="btn btn-outline-danger" 
+                                            onclick="confirmDelete(<?= $row['id'] ?>)" title="Hapus">
                                                 <i class="fas fa-trash"></i>
-                                            </a>
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -303,11 +335,46 @@ $result = mysqli_query($conn, $query);
 </div>
 
 <script>
+// Aktifkan tooltip
+document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+
+function confirmDelete(id) {
+    Swal.fire({
+        title: 'Apakah Anda yakin?',
+        text: "Penyakit akan dihapus permanen dari sistem!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Ya, hapus!',
+        cancelButtonText: 'Batal',
+        backdrop: `
+            rgba(0,0,0,0.7)
+            url("<?= BASE_PATH ?>assets/images/trash-icon.png")
+            center top
+            no-repeat
+        `
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = 'penyakit.php?hapus=' + id;
+        }
+    });
+}
+
 document.addEventListener("DOMContentLoaded", function () {
     const hash = window.location.hash;
     if (hash && document.querySelector(hash)) {
         const element = document.querySelector(hash);
         element.scrollIntoView({ behavior: "smooth", block: "center" });
+        element.style.backgroundColor = "#d4edda"; // warna hijau muda
+        setTimeout(() => {
+            element.style.backgroundColor = "";
+        }, 2000); // reset warna setelah 2 detik
     }
 });
 </script>
