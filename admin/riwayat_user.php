@@ -215,7 +215,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function confirmDelete(id) {
     if (confirm('Apakah Anda yakin ingin menghapus riwayat ini?')) {
-        window.location.href = 'riwayat_hapus.php?id=' + id;
+        window.location.href = 'hapus_riwayat.php?id=' + id;
     }
 }
 </script>
