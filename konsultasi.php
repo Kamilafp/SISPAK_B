@@ -1,12 +1,13 @@
 <?php
 session_start();
 require_once(__DIR__ . '/includes/functions.php');
-require_once(__DIR__ . '/includes/header.php');
 
 if (!isLoggedIn()) {
     header('Location: login.php');
     exit();
 }
+require_once(__DIR__ . '/includes/header.php');
+
 
 // Ambil semua gejala dari database
 $gejala_query = "SELECT * FROM gejala";

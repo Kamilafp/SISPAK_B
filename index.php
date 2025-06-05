@@ -178,7 +178,7 @@ require_once(__DIR__ . '/includes/header.php');
                     </div>
                     <h5 class="card-title">Diagnosis Mandiri</h5>
                     <p class="card-text">Identifikasi potensi masalah gigi Anda melalui serangkaian pertanyaan gejala yang sederhana.</p>
-                    <a href="login.php" class="btn btn-outline-primary">Mulai Diagnosis</a>
+                    <a href="konsultasi.php" class="btn btn-outline-primary">Mulai Diagnosis</a>
                 </div>
             </div>
         </div>
